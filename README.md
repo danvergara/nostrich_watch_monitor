@@ -1,187 +1,148 @@
 Nostr Monitor
 =============
 
-NIP-66 Relay Monitor Architecture
+> NIP-66 Relay Monitor Architecture
 
-                          =====================================
+<img src="nostr_monitor.png" alt="Alt text">
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                   SCHEDULER LAYER                                   │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+# NIP-66 Relay Monitor Architecture
 
-    ┌──────────────────────┐           ┌─────────────────────┐
-    │   Go Job Scheduler   │           │     PostgreSQL      │
-    │                      │◄──────────┤                     │
-    │  • Cron-based timer  │   reads   │  • Relay list       │
-    │  • Every 15 minutes  │   from    │  • Configuration    │
-    │  • Creates job batch │           │  • Monitor state    │
-    └──────────┬───────────┘           └─────────────────────┘
-               │
-               │ pushes jobs
-               ▼
+A scalable, distributed system for monitoring Nostr relays and publishing NIP-66 discovery events.
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                    QUEUE LAYER                                      │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+## Overview
 
-                        ┌──────────────────────────┐
-                        │      Redis Queue         │◄─── Job Status Updates
-                        │                          │
-                        │  Job Types:              │
-                        │  ┌─────────────────────┐ │     ┌─────────────────────┐
-                        │  │ relay_check_job     │ │     │   Nostr Network     │
-                        │  │ {                   │ │     │                     │
-                        │  │   url: "wss://..."  │ │     │ Published 30166     │
-                        │  │   checks: [...],    │ │     │ events for online   │
-                        │  │   timeouts: {...},  │ │◄────┤ relays              │
-                        │  │   private_key: "..."│ │     │                     │
-                        │  │   publish_relays:[] │ │     │ • relay.damus.io    │
-                        │  │ }                   │ │     │ • nos.lol           │
-                        │  └─────────────────────┘ │     │ • relay.nostr.band  │
-                        │                          │     └─────────────────────┘
-                        │  Features:               │
-                        │  • Priority queues       │
-                        │  • Job retry logic       │
-                        │  • Dead letter queue     │
-                        │  • Rate limiting         │
-                        └──────────┬───────────────┘
-                                   │
-                                   │ pops jobs
-                                   ▼
+This system monitors Nostr relays for availability and performance, automatically publishing NIP-66 events (kinds 10166 and 30166) to help users discover reliable relays. The architecture separates concerns between scheduling, job distribution, and relay checking for optimal scalability and fault tolerance.
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                   WORKER LAYER                                      │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+## System Components
 
-    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-    │ Go Worker #1    │    │ Go Worker #2    │    │ Go Worker #N3   │
-    │                 │    │                 │    │                 │
-    │ • WebSocket     │    │ • WebSocket     │    │ • WebSocket     │
-    │   health checks │    │   health checks │    │   health checks │
-    │ • NIP-11 fetch  │    │ • NIP-11 fetch  │    │ • NIP-11 fetch  │
-    │ • Signs 30166   │    │ • Signs 30166   │    │ • Signs 30166   │
-    │   events        │    │   events        │    │   events        │
-    │ • Publishes to  │    │ • Publishes to  │    │ • Publishes to  │
-    │   Nostr relays  │    │   Nostr relays  │    │   Nostr relays  │
-    │ • WaitGroup     │    │ • WaitGroup     │    │ • WaitGroup     │
-    │ • Goroutines    │    │ • Goroutines    │    │ • Goroutines    │
-    └─────────┬───────┘    └─────────┬───────┘    └─────────┬───────┘
-              │                      │                      │
-              │ stores results       │ stores results       │ stores results
-              │ & publishes 30166    │ & publishes 30166    │ & publishes 30166
-              ▼                      ▼                      ▼
+### Job Scheduler (Go)
+The **Go scheduler** serves as the system coordinator:
+- **Cron-based timing**: Triggers monitoring cycles every 15 minutes (configurable)
+- **Relay management**: Loads enabled relays from PostgreSQL
+- **Job creation**: Creates individual check jobs for each relay
+- **Queue management**: Pushes jobs to Redis queue for worker consumption
+- **System coordination**: Publishes 10166 monitor announcements
+- **Cycle monitoring**: Ensures frequency commitments are met
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                  STORAGE LAYER                                      │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+### Job Queue (Redis)
+**Redis** handles job distribution and coordination:
+- **Job storage**: Queues relay check jobs with metadata (URL, timeouts, checks to perform)
+- **Load balancing**: Distributes jobs across available workers
+- **Retry logic**: Handles failed jobs with exponential backoff
+- **Priority queues**: Supports different priority levels for critical relays
+- **Dead letter queue**: Captures permanently failed jobs for analysis
+- **Rate limiting**: Prevents overwhelming target relays
 
-    ┌─────────────────────┐                    ┌─────────────────────┐
-    │    PostgreSQL       │                    │    Redis Cache      │
-    │                     │                    │                     │
-    │  Tables:            │                    │  • Recent results   │
-    │  • relay_results    │                    │  • Job status       │
-    │  • relays           │                    │  • Performance      │
-    │  • monitor_config   │                    │    metrics          │
-    └─────────┬───────────┘                    └─────────┬───────────┘
-              │                                          │
-              │ feeds data to                            │ feeds data to
-              ▼                                          ▼
+### Worker Pool (Go)
+**Go workers** perform the actual relay monitoring:
+- **Concurrent processing**: Each worker handles multiple relay checks using goroutines
+- **Health checks**: Performs WebSocket connection, read, write, and NIP-11 tests
+- **Goroutine-based I/O**: Leverages Go's lightweight concurrency for network operations
+- **Immediate publishing**: Signs and publishes 30166 events directly upon successful checks
+- **Result storage**: Saves check results to PostgreSQL
+- **Job completion**: Updates Redis with job status and completion
 
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                 PUBLISH LAYER                                       │
-└─────────────────────────────────────────────────────────────────────────────────────┘
+### Data Storage
 
-    ┌──────────────────────┐                    ┌─────────────────────┐
-    │   Go Coordinator     │                    │    Web Dashboard    │
-    │                      │                    │                     │
-    │  • Publishes 10166   │                    │  • Website UI       │
-    │    announcements     │                    │  • API endpoints    │
-    │  • Cleanup tasks     │                    │  • Relay search     │
-    │  • System monitoring │                    │  • Historical data  │
-    │  • Database          │                    │  • Performance      │
-    │    maintenance       │                    │    charts           │
-    └──────────────────────┘                    └─────────────────────┘
+#### PostgreSQL
+Primary database for persistent storage:
+- **Relay configuration**: URLs, settings, metadata
+- **Check results**: Historical performance and status data
+- **Monitor configuration**: System settings and timeouts
+- **Event tracking**: Record of published Nostr events
 
+#### Redis Cache
+High-performance caching layer:
+- **Recent results**: Fast access to latest relay status
+- **Job status**: Real-time job queue monitoring
+- **Performance metrics**: Quick lookup for response times and statistics
 
-                                  DATA FLOW
-                                 ═══════════
+### Publishing Layer
 
-    ┌─────────┐    ┌─────────┐    ┌─────────────────────┐    ┌─────────┐
-    │   15    │───▶│  Queue  │───▶│ Workers Check &     │───▶│ Results │
-    │ minute  │    │  Jobs   │    │ Publish 30166       │    │  Store  │
-    │  tick   │    │         │    │ Events Immediately  │    │         │
-    └─────────┘    └─────────┘    └─────────────────────┘    └─────────┘
+#### Workers → Nostr Network
+Workers publish 30166 events immediately:
+- **Real-time updates**: Events published as soon as relays are confirmed online
+- **Direct publishing**: No intermediate batching or coordination delays
+- **Distributed load**: Publishing workload spreads across all workers
+- **Fault isolation**: Individual worker failures don't block other publications
 
+#### Go Coordinator
+Handles system-level publishing:
+- **Monitor announcements**: Publishes 10166 events declaring monitoring intent
+- **System maintenance**: Cleanup tasks and database maintenance
+- **Monitoring dashboards**: Feeds data to web interfaces
 
-                                JOB FLOW DETAIL
-                               ═════════════════
+## Data Flow
 
-Timer ──┐
-        │
-        ▼
-    ┌───────────────────────────────────────────────────────────┐
-    │              Go Scheduler Process                         │
-    │                                                           │
-    │  1. Load enabled relays from PostgreSQL                   │
-    │  2. Create job for each relay                             │
-    │  3. Push jobs to Redis queue                              │
-    │  4. Monitor job completion                                │
-    │  5. Trigger publisher when cycle completes                │
-    └─────────────────────┬─────────────────────────────────────┘
-                          │
-                          ▼
-                    Redis Queue
-                          │
-                          ▼
-    ┌───────────────────────────────────────────────────────────┐
-    │                Go Worker Pool                             │
-    │                                                           │
-    │  Worker Process:                                          │
-    │  1. Pop job from Redis                                    │
-    │  2. Parse job data (relay URL, timeouts, checks)          │
-    │  3. Run health checks concurrently:                       │
-    │     • WebSocket open test                                 │
-    │     • Read capability test                                │
-    │     • Write capability test                               │
-    │     • NIP-11 document fetch                               │
-    │  4. IF RELAY IS ONLINE:                                   │
-    │     • Create & sign 30166 event                           │
-    │     • Publish to target Nostr relays                      │
-    │  5. Store results in PostgreSQL                           │
-    │  6. Update Redis with job completion                      │
-    └───────────────────────────────────────────────────────────┘
+1. **Timer Trigger**: Every 15 minutes, the Go scheduler activates
+2. **Relay Loading**: Scheduler reads enabled relays from PostgreSQL
+3. **Job Creation**: Creates individual check jobs for each relay
+4. **Queue Distribution**: Jobs pushed to Redis queue with worker metadata
+5. **Worker Processing**: Go workers pop jobs and perform concurrent health checks using goroutines
+6. **Immediate Publishing**: Successful checks trigger immediate 30166 event publishing
+7. **Result Storage**: Check results and job status saved to databases
+8. **Cycle Completion**: Process repeats maintaining consistent frequency
 
+## Worker Process Detail
 
-                              SCALING POINTS
-                             ═══════════════
+Each Go worker follows this workflow:
 
-    Horizontal Scaling:
-    • Add more Go worker instances
-    • Redis handles load balancing
-    • Each worker is stateless
+1. **Job Retrieval**: Pop relay check job from Redis queue
+2. **Job Parsing**: Extract relay URL, timeout settings, and check types
+3. **Concurrent Checking**: Launch goroutines for multiple health checks:
+   - WebSocket connection test
+   - Read capability verification
+   - Write capability verification  
+   - NIP-11 information document fetch
+4. **Status Evaluation**: Determine overall relay status (online/offline/degraded)
+5. **Conditional Publishing**: If relay is online:
+   - Create NIP-66 30166 event with relay information
+   - Sign event with monitor private key
+   - Publish to configured Nostr relays
+6. **Result Persistence**: Store check results in PostgreSQL
+7. **Job Completion**: Update Redis with success/failure status
 
-    Vertical Scaling:
-    • Increase worker concurrency per instance
-    • Tune Redis memory/persistence
-    • Scale PostgreSQL connections
+## Scaling Characteristics
 
-    Geographic Scaling:
-    • Deploy workers in different regions
-    • Use region-specific job queues
-    • Aggregate results centrally
+### Horizontal Scaling
+- **Worker instances**: Add more Go workers as relay count grows
+- **Geographic distribution**: Deploy workers in different regions for global coverage
+- **Load balancing**: Redis automatically distributes jobs across available workers
 
+### Vertical Scaling
+- **Worker concurrency**: Increase goroutine count per worker instance
+- **Database connections**: Scale PostgreSQL connection pools
+- **Redis memory**: Adjust memory allocation for larger job queues
 
-                              TECHNOLOGY STACK
-                             ═══════════════
+### Performance Optimizations
+- **Connection pooling**: Reuse database and HTTP connections
+- **Batch operations**: Group database writes for efficiency
+- **Caching strategies**: Cache frequently accessed relay metadata
+- **Resource monitoring**: Track worker performance and queue depths
 
-    Go Components:
-    • github.com/robfig/cron/v3 (scheduler)
-    • github.com/go-redis/redis/v8 (queue client)
-    • github.com/lib/pq (PostgreSQL driver)
-    • github.com/nbd-wtf/go-nostr (Nostr publishing)
+## Technology Stack
 
-    Infrastructure:
-    • Redis 8.x (job queue + cache)
-    • PostgreSQL 15+ (persistent storage)
-    • Optional: Docker containers
-    • Optional: Kubernetes orchestration
+### Go Components
+- `github.com/robfig/cron/v3`: Job scheduling
+- `github.com/go-redis/redis/v8`: Redis client for both scheduler and workers
+- `github.com/lib/pq`: PostgreSQL driver
+- `github.com/nbd-wtf/go-nostr`: Nostr event handling
+- `github.com/gorilla/websocket`: WebSocket client for relay testing
+- `net/http`: HTTP client for NIP-11 fetching
+
+### Infrastructure
+- **Redis 8.x**: Job queue and caching
+- **PostgreSQL 16**: Primary data storage
+- **Docker**: Containerized deployment
+- **Docker Compose**: Multi-container orchestration
+
+## Deployment Benefits
+
+- **Fault tolerance**: Component failures don't cascade system-wide
+- **Language consistency**: Single language (Go) for all components simplifies development and deployment
+- **Independent scaling**: Scale scheduler and workers based on different requirements
+- **Operational simplicity**: Well-defined component boundaries and responsibilities
+- **Cost efficiency**: Resources allocated based on actual workload demands
+- **Go ecosystem**: Leverages Go's excellent concurrency primitives and standard library
+
+This architecture provides a robust foundation for reliable NIP-66 relay monitoring that can scale from hundreds to thousands of relays while maintaining the precise timing commitments required by the protocol.
