@@ -1,3 +1,9 @@
+.PHONY: build
+## build: Builds the Go program
+build:
+	CGO_ENABLED=0 \
+	go build -o monitor .
+
 .PHONY: create-migration
 ## create: Creates golang-migrate migration files
 create-migration:
