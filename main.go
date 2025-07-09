@@ -1,6 +1,5 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-
+Copyright © 2025 Daniel Vergara daniel.omar.vergara@gmial.com
 */
 package main
 
