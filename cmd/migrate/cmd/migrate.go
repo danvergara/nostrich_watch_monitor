@@ -9,6 +9,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var (
+	dbHost string
+	dbPort string
+	dbUser string
+	dbPass string
+	dbName string
+)
+
 // migrateCmd represents the migrate command
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
