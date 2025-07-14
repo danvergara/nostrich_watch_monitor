@@ -1,5 +1,6 @@
 /*
-Copyright © 2025 Daniel Vergara daniel.omar.vergara@gmail.com
+Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+
 */
 package cmd
 
@@ -7,14 +8,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-)
-
-var (
-	dbHost string
-	dbPort string
-	dbUser string
-	dbPass string
-	dbName string
 )
 
 // migrateCmd represents the migrate command
