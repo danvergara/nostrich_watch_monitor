@@ -48,25 +48,10 @@ services:
     networks:
       - monitor
 
-  # Optional: Redis Commander for GUI management
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    restart: unless-stopped
-    environment:
-      REDIS_HOSTS: "local:redis:6379"
-      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
-      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin}
-    ports:
-      - "8081:8081"
-    depends_on:
-      - redis
-    networks:
-      - monitor
-
   migrations:
     build:
       context: .
-      target: builder
+      target: build
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,7 +61,42 @@ services:
       - NOSTRICH_WATCH_DB_USER=postgres
       - NOSTRICH_WATCH_DB_PASSWORD=password
       - NOSTRICH_WATCH_DB_NAME=monitor
-    entrypoint: ["go", "run", "cmd/migrate/main.go", "migrate", "up"]
+    entrypoint: ["go", "run", "main.go", "migrate", "up"]
+    networks:
+      - monitor
+
+  seeder:
+    build:
+      context: .
+      target: build
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+    entrypoint: ["go", "run", "main.go", "seeds"]
+    networks:
+      - monitor
+
+  job-scheduler:
+    build:
+      context: .
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+    entrypoint: ["/bin/monitor", "scheduler"]
     networks:
       - monitor
 
