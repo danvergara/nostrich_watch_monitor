@@ -4,6 +4,8 @@ Copyright © 2025 Daniel Vergara daniel.omar.vergara@gmail.com
 package cmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,13 +26,9 @@ func Execute() {
 }
 
 func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.nostr_monitor.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	dbHost = os.Getenv("NOSTRICH_WATCH_DB_HOST")
+	dbPort = os.Getenv("NOSTRICH_WATCH_DB_PORT")
+	dbUser = os.Getenv("NOSTRICH_WATCH_DB_USER")
+	dbPass = os.Getenv("NOSTRICH_WATCH_DB_PASSWORD")
+	dbName = os.Getenv("NOSTRICH_WATCH_DB_NAME")
 }
