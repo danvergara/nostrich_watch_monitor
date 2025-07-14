@@ -7,5 +7,5 @@ import (
 )
 
 type RelayRepository interface {
-	List(ctx context.Context) ([]*domain.Relay, error)
+	List(ctx context.Context) ([]domain.Relay, error)
 }
