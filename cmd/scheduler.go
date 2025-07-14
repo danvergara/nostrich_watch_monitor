@@ -5,8 +5,13 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
+	"github.com/go-co-op/gocron/v2"
 	"github.com/spf13/cobra"
 
 	"github.com/danvergara/nostrich_watch_monitor/pkg/database"
@@ -25,7 +30,6 @@ var (
 var schedulerCmd = &cobra.Command{
 	Use:   "scheduler",
 	Short: "scheduler command automatically enqueues tasks to monitor relays.",
-	Long:  `.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()
 
@@ -44,28 +48,73 @@ var schedulerCmd = &cobra.Command{
 		defer db.Close()
 
 		relayRepo := postgres.NewRelayRepository(db)
-		relayRepo.List(ctx)
+		relays, err := relayRepo.List(ctx)
+		if err != nil {
+			return err
+		}
+
+		// Create a context for graceful shutdown
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		s, err := gocron.NewScheduler()
+		if err != nil {
+			return err
+		}
+
+		// Ensure shutdown when done
+		defer func() {
+			if err := s.Shutdown(); err != nil {
+				fmt.Printf("error shutting down scheduler: %v\n", err)
+			}
+		}()
+
+		// Create a job for each relay.
+		jobs := make([]gocron.Job, 0, len(relays))
+
+		for _, r := range relays {
+			// Create a job for this specific relay
+			job, err := s.NewJob(
+				gocron.DurationJob(15*time.Minute),
+				gocron.NewTask(func() {
+					fmt.Printf("healthcheck on relay: %s\n", r.URL)
+				}),
+				gocron.WithContext(ctx),
+				gocron.WithName(fmt.Sprintf("health check on relay: %s", r.URL)),
+				gocron.WithTags("health-check", "monitoring", r.URL),
+			)
+			if err != nil {
+				fmt.Printf("error scheduling job: %v\n", err)
+				continue
+			}
+			jobs = append(jobs, job)
+		}
+
+		// Start the scheduler.
+		s.Start()
+		fmt.Println("scheduler started. Task will run every 15 minutes.")
+
+		// Show next run times.
+		fmt.Println("\nNext run times:")
+		for _, job := range jobs {
+			if nextRun, err := job.NextRun(); err == nil {
+				fmt.Printf("  %s: %s\n", job.Name(), nextRun.Format("2006-01-02 15:04:05"))
+			}
+		}
+
+		// Set up graceful shutdown.
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+
+		fmt.Println("\nPress Ctrl+C to stop...")
+		<-c
+
+		fmt.Println("\nshutting down health check scheduler...")
 
 		return nil
 	},
 }
 
 func init() {
-	dbHost = os.Getenv("NOSTRICH_WATCH_DB_HOST")
-	dbPort = os.Getenv("NOSTRICH_WATCH_DB_PORT")
-	dbUser = os.Getenv("NOSTRICH_WATCH_DB_USER")
-	dbPass = os.Getenv("NOSTRICH_WATCH_DB_PASSWORD")
-	dbName = os.Getenv("NOSTRICH_WATCH_DB_NAME")
-
 	rootCmd.AddCommand(schedulerCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// schedulerCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// schedulerCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
