@@ -30,15 +30,7 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
-      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
-    command: >
-      redis-server /usr/local/etc/redis/redis.conf
-      --appendonly yes
-      --appendfsync everysec
-      --maxmemory ${REDIS_MAX_MEMORY:-256mb}
-      --maxmemory-policy allkeys-lru
-      --tcp-keepalive 60
-      --timeout 300
+    command: redis-server --appendonly yes
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 30s
@@ -48,25 +40,10 @@ services:
     networks:
       - monitor
 
-  # Optional: Redis Commander for GUI management
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    restart: unless-stopped
-    environment:
-      REDIS_HOSTS: "local:redis:6379"
-      HTTP_USER: ${REDIS_COMMANDER_USER:-admin}
-      HTTP_PASSWORD: ${REDIS_COMMANDER_PASSWORD:-admin}
-    ports:
-      - "8081:8081"
-    depends_on:
-      - redis
-    networks:
-      - monitor
-
   migrations:
     build:
       context: .
-      target: builder
+      target: build
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,7 +53,55 @@ services:
       - NOSTRICH_WATCH_DB_USER=postgres
       - NOSTRICH_WATCH_DB_PASSWORD=password
       - NOSTRICH_WATCH_DB_NAME=monitor
-    entrypoint: ["go", "run", "cmd/migrate/main.go", "migrate", "up"]
+    entrypoint: ["go", "run", "main.go", "migrate", "up"]
+    networks:
+      - monitor
+
+  seeder:
+    build:
+      context: .
+      target: build
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrations:
+        condition: service_completed_successfully
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+    entrypoint: ["go", "run", "main.go", "seeds"]
+    networks:
+      - monitor
+
+  job-scheduler:
+    build:
+      context: .
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+      - NOSTRICH_WATCH_REDIS_HOST=redis:6379
+    entrypoint: ["/bin/monitor", "scheduler"]
+    networks:
+      - monitor
+
+  asynqmon:
+    image: hibiken/asynqmon:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_ADDR=redis:6379
+      - PORT=8080
+    depends_on:
+      - redis
     networks:
       - monitor
 

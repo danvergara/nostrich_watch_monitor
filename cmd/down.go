@@ -5,7 +5,7 @@ package cmd
 
 import (
 	"fmt"
-	"os"
+	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -13,10 +13,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// upCmd represents the up command
-var upCmd = &cobra.Command{
-	Use:   "up",
-	Short: "Run the Nostrich Watch database migrations",
+// downCmd represents the down command
+var downCmd = &cobra.Command{
+	Use:   "down",
+	Short: "Rollback the database migrations",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		m, err := migrate.New(
 			"file://db/migrations",
@@ -33,20 +33,16 @@ var upCmd = &cobra.Command{
 			return err
 		}
 
-		if err := m.Up(); err != nil {
+		if err := m.Down(); err != nil {
 			return err
 		}
+
+		log.Println("database migrations were reversed succesfully")
 
 		return nil
 	},
 }
 
 func init() {
-	dbHost = os.Getenv("NOSTRICH_WATCH_DB_HOST")
-	dbPort = os.Getenv("NOSTRICH_WATCH_DB_PORT")
-	dbUser = os.Getenv("NOSTRICH_WATCH_DB_USER")
-	dbPass = os.Getenv("NOSTRICH_WATCH_DB_PASSWORD")
-	dbName = os.Getenv("NOSTRICH_WATCH_DB_NAME")
-
-	migrateCmd.AddCommand(upCmd)
+	migrateCmd.AddCommand(downCmd)
 }

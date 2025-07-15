@@ -1,0 +1,10 @@
+.git
+.vscode
+.gitignore
+Makefile
+README.md
+LICENSE
+nostr_monitor.png
+docker-compose.yml
+Dockerfile
+redis/

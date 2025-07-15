@@ -1,8 +1,7 @@
-FROM golang:1.24-bookworm AS builder
+FROM golang:1.24-bookworm AS build
 
 WORKDIR /src/app
 
-# install system dependencies
 RUN apt-get update \
   && apt-get -y install netcat-openbsd \
   && apt-get clean
@@ -14,12 +13,10 @@ COPY . .
 ARG TARGETOS
 ARG TARGETARCH
 
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH}  go build -o monitor .
+RUN CGO_ENABLED=0 go build -o monitor .
 
-FROM scratch AS bin
+FROM scratch
 
-LABEL org.opencontainers.image.documentation="https://github.com/danvergara/nostrich_watch_monitor" \
-	org.opencontainers.image.source="https://github.com/danvergara/nostrich_watch_monitor" \
-	org.opencontainers.image.title="nostrich_watch_monitor"
+COPY --from=build /src/app/monitor /bin/monitor
 
-COPY --from=builder /src/app/monitor /bin/monitor
+CMD ["/bin/monitor"]
