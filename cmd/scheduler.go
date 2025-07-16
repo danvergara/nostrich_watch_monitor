@@ -5,7 +5,6 @@ package cmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"log/slog"
@@ -20,14 +19,8 @@ import (
 
 	"github.com/danvergara/nostrich_watch_monitor/pkg/database"
 	"github.com/danvergara/nostrich_watch_monitor/pkg/repository/postgres"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/task"
 )
-
-var redisHost string
-
-type RelayTaskPayload struct {
-	// URL of the relay
-	RelayURL string
-}
 
 // schedulerCmd represents the scheduler command
 var schedulerCmd = &cobra.Command{
@@ -92,18 +85,14 @@ var schedulerCmd = &cobra.Command{
 		for _, r := range relays {
 			// Create a job for this specific relay
 			job, err := s.NewJob(
-				// gocron.DurationJob(15*time.Minute),
 				gocron.DurationJob(15*time.Minute),
 				gocron.NewTask(func(relayURL string) error {
-					// Create a task with type name and payload.
-					payload, err := json.Marshal(RelayTaskPayload{RelayURL: relayURL})
+					// Create a asynq task passing the type and the payload of the task.
+					relayTask, err := task.NewRelayHealthCheckTask(relayURL)
 					if err != nil {
 						logger.Error(err.Error())
 						return err
 					}
-
-					// Create a asynq task passing the type and the payload of the task.
-					relayTask := asynq.NewTask("relay:healthcheck", payload)
 
 					// Process the task immediately.
 					info, err := client.Enqueue(relayTask)
@@ -158,7 +147,5 @@ var schedulerCmd = &cobra.Command{
 }
 
 func init() {
-	// Initialize the redisHost variable based on the value of the NOSTRICH_WATCH_REDIS_HOST environment variable.
-	redisHost = os.Getenv("NOSTRICH_WATCH_REDIS_HOST")
 	rootCmd.AddCommand(schedulerCmd)
 }
