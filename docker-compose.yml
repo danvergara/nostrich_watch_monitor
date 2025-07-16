@@ -93,6 +93,23 @@ services:
     networks:
       - monitor
 
+  worker:
+    build:
+      context: .
+    depends_on:
+      job-scheduler:
+        condition: service_started
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+      - NOSTRICH_WATCH_REDIS_HOST=redis:6379
+    entrypoint: ["/bin/monitor", "worker"]
+    networks:
+      - monitor
+
   asynqmon:
     image: hibiken/asynqmon:latest
     ports:
