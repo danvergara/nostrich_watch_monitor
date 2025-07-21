@@ -15,12 +15,10 @@ import (
 func seedRelays(db *sql.DB) error {
 	relayURLs := []string{
 		"wss://relay.damus.io",
-		"wss://nos.lol",
 		"wss://relay.nostr.band",
-		"wss://nostr.wine",
-		"wss://relay.snort.social",
 		"wss://nostr.land",
 		"wss://nostr.mom",
+		"wss://nos.lol",
 	}
 
 	stmt, err := db.Prepare(`

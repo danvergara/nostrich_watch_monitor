@@ -8,4 +8,6 @@ import (
 
 type RelayRepository interface {
 	List(ctx context.Context) ([]domain.Relay, error)
+	Update(ctx context.Context, relayInfo domain.Relay) error
+	SaveHealthCheck(ctx context.Context, status domain.HealthCheck) error
 }

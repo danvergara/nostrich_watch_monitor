@@ -10,11 +10,12 @@ import (
 )
 
 var (
-	dbHost string
-	dbPort string
-	dbUser string
-	dbPass string
-	dbName string
+	dbHost    string
+	dbPort    string
+	dbUser    string
+	dbPass    string
+	dbName    string
+	redisHost string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -34,6 +35,8 @@ func Execute() {
 }
 
 func init() {
+	// Initialize the redisHost variable based on the value of the NOSTRICH_WATCH_REDIS_HOST environment variable.
+	redisHost = os.Getenv("NOSTRICH_WATCH_REDIS_HOST")
 	dbHost = os.Getenv("NOSTRICH_WATCH_DB_HOST")
 	dbPort = os.Getenv("NOSTRICH_WATCH_DB_PORT")
 	dbUser = os.Getenv("NOSTRICH_WATCH_DB_USER")
