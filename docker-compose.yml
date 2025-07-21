@@ -106,6 +106,7 @@ services:
       - NOSTRICH_WATCH_DB_PASSWORD=password
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
+      - NOSTRICH_WATCH_MONITOR_PRIVATE_KEY=${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}
     entrypoint: ["/bin/monitor", "worker"]
     networks:
       - monitor
