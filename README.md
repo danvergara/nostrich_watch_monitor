@@ -106,7 +106,6 @@ Each Go worker follows this workflow:
 
 ### Horizontal Scaling
 - **Worker instances**: Add more Go workers as relay count grows
-- **Geographic distribution**: Deploy workers in different regions for global coverage
 - **Load balancing**: Redis automatically distributes jobs across available workers
 
 ### Vertical Scaling
@@ -123,7 +122,7 @@ Each Go worker follows this workflow:
 ## Technology Stack
 
 ### Go Components
-- `github.com/robfig/cron/v3`: Job scheduling
+- `https://github.com/go-co-op/gocron`: Job scheduling
 - `github.com/go-redis/redis/v8`: Redis client for both scheduler and workers
 - `github.com/lib/pq`: PostgreSQL driver
 - `github.com/nbd-wtf/go-nostr`: Nostr event handling
