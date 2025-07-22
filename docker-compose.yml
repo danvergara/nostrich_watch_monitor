@@ -107,6 +107,7 @@ services:
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
       - NOSTRICH_WATCH_MONITOR_PRIVATE_KEY=${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}
+      - NOSTRICH_WATCH_MONITOR_RELAY=ws://strfry:7777
     entrypoint: ["/bin/monitor", "worker"]
     networks:
       - monitor
@@ -122,6 +123,16 @@ services:
       - redis
     networks:
       - monitor
+
+  strfry:
+    image: dockurr/strfry
+    ports:
+      - 7777:7777
+    volumes:
+      - ./strfry-db:/app/strfry-db
+    stop_grace_period: 2m
+    networks:
+        - monitor
 
 volumes:
   postgres_data:
