@@ -8,3 +8,5 @@ nostr_monitor.png
 docker-compose.yml
 Dockerfile
 redis/
+data/
+config.toml

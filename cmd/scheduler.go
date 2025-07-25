@@ -51,7 +51,9 @@ var schedulerCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer db.Close()
+		defer func() {
+			_ = db.Close()
+		}()
 
 		// Use the pool of connections to create a database client, based on the Repository pattern.
 		relayRepo := postgres.NewRelayRepository(db)
@@ -85,7 +87,7 @@ var schedulerCmd = &cobra.Command{
 		for _, r := range relays {
 			// Create a job for this specific relay
 			job, err := s.NewJob(
-				gocron.DurationJob(15*time.Minute),
+				gocron.DurationJob(1*time.Hour),
 				gocron.NewTask(func(relayURL string) error {
 					// Create a asynq task passing the type and the payload of the task.
 					relayTask, err := task.NewRelayHealthCheckTask(relayURL)
@@ -116,6 +118,39 @@ var schedulerCmd = &cobra.Command{
 			}
 
 			jobs = append(jobs, job)
+		}
+
+		jobAnnouncement, err := s.NewJob(
+			gocron.DurationJob(7*24*time.Hour),
+			gocron.NewTask(func(frequency string) error {
+				// Create a asynq task passing the type and the payload of the task.
+				relayTask, err := task.NewTaskMonitorAnnouncement(frequency)
+				if err != nil {
+					logger.Error(err.Error())
+					return err
+				}
+
+				// Process the task immediately.
+				info, err := client.Enqueue(relayTask)
+				if err != nil {
+					logger.Error(fmt.Sprintf("error processing a task: %s", err))
+					return err
+				}
+
+				logger.Info(fmt.Sprintf("[*] Successfully enqueued the task: %+v", info))
+
+				return nil
+
+			}, "604800"),
+			gocron.WithContext(ctx),
+			gocron.WithName("Monitor Announcement"),
+			gocron.WithTags("monitoring", "announcement"),
+		)
+
+		if err != nil {
+			logger.Error(fmt.Sprintf("error scheduling monitor announcement job: %v", err))
+		} else {
+			jobs = append(jobs, jobAnnouncement)
 		}
 
 		// Start the scheduler.

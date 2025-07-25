@@ -107,6 +107,7 @@ services:
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
       - NOSTRICH_WATCH_MONITOR_PRIVATE_KEY=${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}
+      - NOSTRICH_WATCH_MONITOR_RELAY=ws://nostr-relay:7777
     entrypoint: ["/bin/monitor", "worker"]
     networks:
       - monitor
@@ -122,6 +123,17 @@ services:
       - redis
     networks:
       - monitor
+
+  nostr-relay:
+    image: scsibug/nostr-rs-relay:latest
+    ports:
+      - 7777:7777
+    volumes:
+      - ./data:/usr/src/app/db
+      - ./config.toml:/usr/src/app/config.toml
+    restart: unless-stopped
+    networks:
+        - monitor
 
 volumes:
   postgres_data:
