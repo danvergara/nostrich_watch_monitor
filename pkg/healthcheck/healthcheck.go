@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"time"
 
 	"github.com/jmoiron/sqlx"
@@ -31,26 +32,62 @@ type HealthCheck struct {
 
 // RelayChecker handles health checking for relays.
 type RelayChecker struct {
-	db         *sqlx.DB
-	timeout    time.Duration
-	privateKey string
-	hc         *HealthCheck
-	logger     *slog.Logger
+	db           *sqlx.DB
+	timeout      time.Duration
+	privateKey   string
+	hc           *HealthCheck
+	logger       *slog.Logger
+	monitorRelay string
 }
+
+// Option is a functional option type that allows us to configure the Client.
+type Option func(*RelayChecker)
 
 // NewRelayChecker returns a RelayChecker instance given the necessary parameters.
 // The privateKey is expected to come from a environment variable.
-func NewRelayChecker(
-	db *sqlx.DB,
-	timeout time.Duration,
-	privateKey string,
-	logger *slog.Logger,
-) *RelayChecker {
-	return &RelayChecker{
-		db:         db,
-		timeout:    timeout,
-		privateKey: privateKey,
-		logger:     logger,
+func NewRelayChecker(options ...Option) *RelayChecker {
+	rc := &RelayChecker{}
+
+	// Apply all the functional options to configure the Relay Checker.
+	for _, opt := range options {
+		opt(rc)
+	}
+
+	return rc
+}
+
+// WithTimeout is a functional option to set the HTTP Relay Checker timeout.
+func WithTimeout(timeout time.Duration) Option {
+	return func(rc *RelayChecker) {
+		rc.timeout = timeout
+	}
+}
+
+// WithDB is a functional option to set database pool of connection.
+func WithDB(db *sqlx.DB) Option {
+	return func(rc *RelayChecker) {
+		rc.db = db
+	}
+}
+
+// WithPrivatekey is a functional option to set monitor's private key.
+func WithPrivateKey(privateKey string) Option {
+	return func(rc *RelayChecker) {
+		rc.privateKey = privateKey
+	}
+}
+
+// WithPrivatekey is a functional option to set monitor's private key.
+func WithLogger(logger *slog.Logger) Option {
+	return func(rc *RelayChecker) {
+		rc.logger = logger
+	}
+}
+
+// WithMonitorRelay is a functional option to set monitor's private relay URL.
+func WithMonitorRelay(monitorRelay string) Option {
+	return func(rc *RelayChecker) {
+		rc.monitorRelay = monitorRelay
 	}
 }
 
@@ -128,6 +165,59 @@ func (rc *RelayChecker) CheckRelay(ctx context.Context, relayURL string) error {
 		return err
 	}
 
+	pub, err := nostr.GetPublicKey(rc.privateKey)
+	if err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to derive the monitor's public key: %v", err),
+		)
+		return err
+	}
+
+	ev := nostr.Event{
+		PubKey:    pub,
+		CreatedAt: nostr.Now(),
+		Kind:      30166,
+		Tags: nostr.Tags{
+			{"d", relayURL},
+			{"n", "clearnet"},
+			{"rtt-open", strconv.Itoa(nullInt(rc.hc.RTTOpen))},
+		},
+		Content: "",
+	}
+
+	// Add Supported NIPs to the Tags field.
+	ev.Tags = addSupportedNIPs(ev.Tags, supportedNIPs)
+
+	// Add payment and auth requirements, if any.
+	ev.Tags = addLimitations(ev.Tags, info.Limitation)
+
+	// Add "Topics" From NIP-11 "Informational Document" nip11.tags[].
+	ev.Tags = addTopics(ev.Tags, info.Tags)
+
+	// Add Supported languages by the relay of interest.
+	ev.Tags = addLanguages(ev.Tags, info.LanguageTags)
+
+	ev.Sign(rc.privateKey)
+
+	relay, err := nostr.RelayConnect(ctx, rc.monitorRelay)
+	if err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to connect to the monitor's relay: %v", err),
+		)
+		return err
+	}
+
+	if err := relay.Publish(ctx, ev); err != nil {
+		rc.logger.Error(
+			fmt.Sprintf(
+				"❌ failed to publish 30166 event about %s to the monitor's relay: %v",
+				relayURL,
+				err,
+			),
+		)
+		return err
+	}
+
 	return nil
 }
 
@@ -192,4 +282,62 @@ func (rc *RelayChecker) testNIP11(
 		rc.hc.RelayURL, rttMs, info.Name))
 
 	return info, nil
+}
+
+func (rc *RelayChecker) Publish10166Event(ctx context.Context, frequency, timeout string) error {
+	pub, err := nostr.GetPublicKey(rc.privateKey)
+	if err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to get derive the monitor's public key: %v", err),
+		)
+		return err
+	}
+
+	ev := nostr.Event{
+		Kind:      10166,
+		PubKey:    pub,
+		CreatedAt: nostr.Timestamp(time.Now().Unix()),
+		Content:   "",
+		Tags: nostr.Tags{
+			// Frequency of monitoring (example: every 3600 seconds/1 hour).
+			{"frequency", frequency},
+
+			// Checks performed.
+			{"c", "ws"},
+			{"c", "nip11"},
+
+			// Timeout configurations.
+			{"timeout", timeout, "open"},
+			{"timeout", timeout, "nip11"},
+		},
+	}
+
+	// Since it's a replaceable event, it will automatically
+	// replace any previous 10166 from this pubkey
+	if err = ev.Sign(rc.privateKey); err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to sign the event using the monitor's private key: %v", err),
+		)
+		return err
+	}
+
+	relay, err := nostr.RelayConnect(ctx, rc.monitorRelay)
+	if err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to connect to the monitor's relay: %v", err),
+		)
+		return err
+	}
+
+	if err := relay.Publish(ctx, ev); err != nil {
+		rc.logger.Error(
+			fmt.Sprintf(
+				"❌ failed to publish 10166 event monitor annnoucement to the monitor's relay: %v",
+				err,
+			),
+		)
+		return err
+	}
+
+	return nil
 }
