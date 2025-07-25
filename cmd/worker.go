@@ -14,7 +14,10 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/pkg/task"
 )
 
-var monitorPrivateKey string
+var (
+	monitorPrivateKey string
+	monitorRelay      string
+)
 
 // workerCmd represents the worker command
 var workerCmd = &cobra.Command{
@@ -43,7 +46,14 @@ var workerCmd = &cobra.Command{
 		}
 		defer db.Close()
 
-		th := task.NewTaskHandler(db, 10*time.Second, monitorPrivateKey, logger, redisHost)
+		th := task.NewTaskHandler(
+			db,
+			10*time.Second,
+			monitorPrivateKey,
+			logger,
+			redisHost,
+			monitorRelay,
+		)
 
 		if err := th.Run(); err != nil {
 			logger.Error(err.Error())
@@ -56,5 +66,6 @@ var workerCmd = &cobra.Command{
 
 func init() {
 	monitorPrivateKey = os.Getenv("NOSTRICH_WATCH_MONITOR_PRIVATE_KEY")
+	monitorRelay = os.Getenv("NOSTRICH_WATCH_MONITOR_RELAY")
 	rootCmd.AddCommand(workerCmd)
 }
