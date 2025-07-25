@@ -29,7 +29,10 @@ func seedRelays(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	defer stmt.Close()
+
+	defer func() {
+		_ = stmt.Close()
+	}()
 
 	for _, url := range relayURLs {
 		_, err := stmt.Exec(url)
@@ -61,7 +64,9 @@ var seedsCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer db.Close()
+		defer func() {
+			_ = db.Close()
+		}()
 
 		if err := seedRelays(db); err != nil {
 			return err

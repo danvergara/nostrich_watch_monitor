@@ -1,39 +1,7 @@
+version: "2"
 run:
   timeout: 5m
   modules-download-mode: readonly
-
-linters-settings:
-  govet:
-    check-shadowing: true
-  gocyclo:
-    min-complexity: 15
-  misspell:
-    locale: US
-  lll:
-    line-length: 120
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-
-linters:
-  enable:
-    - errcheck
-    - gosimple
-    - govet
-    - ineffassign
-    - staticcheck
-    - typecheck
-    - unused
-    - misspell
-    - gocyclo
-    - gofmt
-    - goimports
-    - goconst
-    - lll
-  disable:
-    - deadcode
-    - varcheck
-    - structcheck
 
 issues:
   exclude-rules:

@@ -51,7 +51,9 @@ var schedulerCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer db.Close()
+		defer func() {
+			_ = db.Close()
+		}()
 
 		// Use the pool of connections to create a database client, based on the Repository pattern.
 		relayRepo := postgres.NewRelayRepository(db)
@@ -145,7 +147,12 @@ var schedulerCmd = &cobra.Command{
 			gocron.WithTags("monitoring", "announcement"),
 		)
 
-		jobs = append(jobs, jobAnnouncement)
+		if err != nil {
+			logger.Error(fmt.Sprintf("error scheduling monitor announcement job: %v", err))
+		} else {
+			jobs = append(jobs, jobAnnouncement)
+		}
+
 		// Start the scheduler.
 		s.Start()
 		logger.Info("scheduler started. Task will run every 15 minutes.")

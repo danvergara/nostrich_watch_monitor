@@ -44,7 +44,9 @@ var workerCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		defer db.Close()
+		defer func() {
+			_ = db.Close()
+		}()
 
 		th := task.NewTaskHandler(
 			db,

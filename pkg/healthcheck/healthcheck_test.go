@@ -21,7 +21,9 @@ func TestNewRelayChecker(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create mock db: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 
 	sqlxDB := sqlx.NewDb(db, "postgres")
 	timeout := 30 * time.Second
@@ -74,7 +76,9 @@ func TestTestConnectionWithMockWebSocket(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create mock db: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 
 	sqlxDB := sqlx.NewDb(db, "postgres")
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -132,7 +136,7 @@ func TestTestNIP11WithMockServer(t *testing.T) {
 		if r.Header.Get("Accept") == "application/nostr+json" {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusOK)
-			w.Write([]byte(nip11Response))
+			_, _ = w.Write([]byte(nip11Response))
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
 		}
@@ -143,7 +147,9 @@ func TestTestNIP11WithMockServer(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create mock db: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 
 	sqlxDB := sqlx.NewDb(db, "postgres")
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -193,7 +199,7 @@ func TestTestNIP11WithServerError(t *testing.T) {
 	// Create a mock HTTP server that returns an error
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Internal Server Error"))
+		_, _ = w.Write([]byte("Internal Server Error"))
 	}))
 	defer server.Close()
 
@@ -201,7 +207,9 @@ func TestTestNIP11WithServerError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create mock db: %v", err)
 	}
-	defer db.Close()
+	defer func() {
+		_ = db.Close()
+	}()
 
 	sqlxDB := sqlx.NewDb(db, "postgres")
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -239,7 +247,7 @@ func TestAddSupportedNIPs(t *testing.T) {
 		expectedTags  nostr.Tags
 	}
 
-	var tests []test = []test{
+	var tests = []test{
 		{
 			name:          "success adding nips",
 			supportedNIPs: []int{30, 40, 42},
@@ -280,7 +288,7 @@ func TestAddLanguageTags(t *testing.T) {
 		tags         nostr.Tags
 		expectedTags nostr.Tags
 	}
-	var tests []test = []test{
+	var tests = []test{
 		{
 			name:         "multiple languages",
 			languageTags: []string{"es", "en", "en-419"},

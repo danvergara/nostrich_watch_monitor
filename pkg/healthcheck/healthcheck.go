@@ -197,7 +197,12 @@ func (rc *RelayChecker) CheckRelay(ctx context.Context, relayURL string) error {
 	// Add Supported languages by the relay of interest.
 	ev.Tags = addLanguages(ev.Tags, info.LanguageTags)
 
-	ev.Sign(rc.privateKey)
+	if err := ev.Sign(rc.privateKey); err != nil {
+		rc.logger.Error(
+			fmt.Sprintf("❌ failed to sign the event using the monitor's private key: %v", err),
+		)
+		return err
+	}
 
 	relay, err := nostr.RelayConnect(ctx, rc.monitorRelay)
 	if err != nil {
