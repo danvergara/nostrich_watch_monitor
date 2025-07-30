@@ -17,11 +17,14 @@ RUN CGO_ENABLED=0 go build -o monitor .
 
 FROM scratch
 
+WORKDIR /app
+
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 
-COPY --from=build /src/app/monitor /bin/monitor
+COPY --from=build /src/app/db/migrations/ /app/db/migrations/
+COPY --from=build /src/app/monitor /app/monitor
 
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
-CMD ["/bin/monitor"]
+CMD ["/app/monitor"]
