@@ -1,3 +1,11 @@
+HTMX_VERSION=2.0.6
+
+
+.PHONY: download-htmx
+## download-htmx: Downloads HTMX minified js file
+download-htmx:
+	curl -o web/static/htmx.min.js https://cdn.jsdelivr.net/npm/htmx.org@${HTMX_VERSION}/dist/htmx.min.js 
+
 .PHONY: build
 ## build: Builds the Go program
 build:
