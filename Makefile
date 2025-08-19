@@ -20,12 +20,12 @@ create-migration:
 .PHONY: css
 ## css: Watch and compile Tailwind CSS for development
 css:
-	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/styles.css --watch
+	npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/styles.css --watch
 
 .PHONY: build-css
 ## build-css: Build and minify Tailwind CSS for production
 build-css:
-	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/styles.css --minify
+	npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/styles.css --minify
 
 .PHONY: help
 ## help: Prints this help message
