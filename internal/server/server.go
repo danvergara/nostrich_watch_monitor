@@ -20,6 +20,7 @@ func NewServer(cfg *config.Config, fs fs.FS) http.Handler {
 	mux := http.NewServeMux()
 	addRoutes(mux, cfg, fs)
 	var handler http.Handler = mux
+	handler = loggingMiddleware(cfg.Logger)(handler)
 	return handler
 }
 

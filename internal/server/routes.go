@@ -10,7 +10,7 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/web/views"
 )
 
-func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS) {
+func addRoutes(mux *http.ServeMux, _ *config.Config, fs fs.FS) {
 	mux.Handle(
 		"/static/",
 		http.StripPrefix("/static/", http.FileServer(http.FS(fs))),
