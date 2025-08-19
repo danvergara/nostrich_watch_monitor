@@ -1,32 +1,12 @@
 package views
 
 import (
-    "fmt"
     "github.com/danvergara/nostrich_watch_monitor/web/views/components"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/domain"
 )
 
-type RelayDisplayData struct {
-    URL            string
-    Name           string
-    Description    string
-    UptimePercent  float64
-    Classification string // "Public", "Paid", "WoT", "Private"
-    RTTOpen        *int   // WebSocket connection time (ms)
-    RTTNIP11       *int   // NIP-11 fetch time (ms)
-    IsOnline       bool   // Current status from latest check
-    LastCheckTime  string // When the last check cycle ran
-    WebsocketSuccess bool
-    NIP11Success   *bool
-    IsRecommended  bool
-}
 
-type DashboardData struct {
-    FeaturedRelays []RelayDisplayData
-    AllRelays      []RelayDisplayData
-    LastUpdated    string
-}
-
-func GetMockDashboardData() DashboardData {
+func GetMockDashboardData() domain.DashboardData {
     rttOpen45 := 45
     rttOpen32 := 32
     rttOpen78 := 78
@@ -40,7 +20,7 @@ func GetMockDashboardData() DashboardData {
     nip11Success := true
     nip11Failed := false
 
-    mockRelays := []RelayDisplayData{
+    mockRelays := []domain.RelayDisplayData{
         {
             URL:            "wss://relay.damus.io",
             Name:           "Damus Relay",
@@ -113,14 +93,14 @@ func GetMockDashboardData() DashboardData {
         },
     }
 
-    var featured []RelayDisplayData
+    var featured []domain.RelayDisplayData
     for _, relay := range mockRelays {
         if relay.IsRecommended {
             featured = append(featured, relay)
         }
     }
 
-    return DashboardData{
+    return domain.DashboardData{
         FeaturedRelays: featured,
         AllRelays:      mockRelays,
         LastUpdated:    "2 minutes ago",
@@ -129,7 +109,7 @@ func GetMockDashboardData() DashboardData {
 
 templ Dashboard() {
     @Base("Dashboard") {
-        { data := GetMockDashboardData() }
+        {{ data := GetMockDashboardData() }}
         
         <div class="min-h-screen bg-gray-900">
             @components.Navigation(data.LastUpdated)

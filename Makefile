@@ -12,6 +12,11 @@ build:
 	CGO_ENABLED=0 \
 	go build -o monitor .
 
+.PHONY: dev
+dev:
+	templ generate --watch --cmd="go generate" &\
+	templ generate --watch --cmd="go run main.go server"
+
 .PHONY: create-migration
 ## create: Creates golang-migrate migration files
 create-migration:

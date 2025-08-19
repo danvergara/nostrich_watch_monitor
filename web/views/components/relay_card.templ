@@ -2,10 +2,10 @@ package components
 
 import (
     "fmt"
-    "github.com/danvergara/nostrich_watch_monitor/web/views"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/domain"
 )
 
-templ RelayCard(relay views.RelayDisplayData, isFeatured bool) {
+templ RelayCard(relay domain.RelayDisplayData, isFeatured bool) {
     <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-200 hover:shadow-lg">
         <!-- Header with Status Indicator -->
         <div class="flex items-start justify-between mb-4">
@@ -13,8 +13,8 @@ templ RelayCard(relay views.RelayDisplayData, isFeatured bool) {
                 <div class="flex items-center gap-2 mb-1">
                     <!-- Online/Offline Status Dot -->
                     <div class={
-                        "w-2 h-2 rounded-full " +
-                        templ.KV("bg-green-400", relay.IsOnline) +
+                        "w-2 h-2 rounded-full ",
+                        templ.KV("bg-green-400", relay.IsOnline),
                         templ.KV("bg-red-400", !relay.IsOnline)
                     }></div>
                     
@@ -43,8 +43,8 @@ templ RelayCard(relay views.RelayDisplayData, isFeatured bool) {
         <div class="flex items-center justify-between pt-4 border-t border-gray-700">
             <div class="flex items-center gap-2">
                 <span class={
-                    "text-xs font-medium " +
-                    templ.KV("text-green-400", relay.IsOnline) +
+                    "text-xs font-medium ",
+                    templ.KV("text-green-400", relay.IsOnline),
                     templ.KV("text-red-400", !relay.IsOnline)
                 }>
                     if relay.IsOnline {
@@ -64,17 +64,17 @@ templ RelayCard(relay views.RelayDisplayData, isFeatured bool) {
 
 templ ClassificationBadge(classification string) {
     <span class={
-        "px-2 py-1 text-xs font-medium rounded-full " +
-        templ.KV("bg-green-500/10 text-green-400", classification == "Public") +
-        templ.KV("bg-blue-500/10 text-blue-400", classification == "Paid") +
-        templ.KV("bg-purple-500/10 text-purple-400", classification == "WoT") +
+        "px-2 py-1 text-xs font-medium rounded-full ",
+        templ.KV("bg-green-500/10 text-green-400", classification == "Public"),
+        templ.KV("bg-blue-500/10 text-blue-400", classification == "Paid"),
+        templ.KV("bg-purple-500/10 text-purple-400", classification == "WoT"),
         templ.KV("bg-gray-500/10 text-gray-400", classification == "Private")
     }>
         {classification}
     </span>
 }
 
-templ RelayMetrics(relay views.RelayDisplayData) {
+templ RelayMetrics(relay domain.RelayDisplayData) {
     <div class="space-y-3 mb-4">
         <!-- Uptime -->
         @UptimeBar(relay.UptimePercent)
@@ -84,9 +84,9 @@ templ RelayMetrics(relay views.RelayDisplayData) {
             <span class="text-sm text-gray-400">Connection</span>
             if relay.RTTOpen != nil {
                 <span class={
-                    "text-sm font-medium " +
-                    templ.KV("text-green-400", *relay.RTTOpen < 100) +
-                    templ.KV("text-yellow-400", *relay.RTTOpen >= 100 && *relay.RTTOpen < 300) +
+                    "text-sm font-medium ",
+                    templ.KV("text-green-400", *relay.RTTOpen < 100),
+                    templ.KV("text-yellow-400", *relay.RTTOpen >= 100 && *relay.RTTOpen < 300),
                     templ.KV("text-red-400", *relay.RTTOpen >= 300)
                 }>{fmt.Sprintf("%dms", *relay.RTTOpen)}</span>
             } else {
@@ -121,9 +121,9 @@ templ UptimeBar(uptimePercent float64) {
         <div class="flex items-center gap-2">
             <div class="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
                 <div class={
-                    "h-full rounded-full transition-all " +
-                    templ.KV("bg-green-400", uptimePercent >= 95) +
-                    templ.KV("bg-yellow-400", uptimePercent >= 90 && uptimePercent < 95) +
+                    "h-full rounded-full transition-all ",
+                    templ.KV("bg-green-400", uptimePercent >= 95),
+                    templ.KV("bg-yellow-400", uptimePercent >= 90 && uptimePercent < 95),
                     templ.KV("bg-red-400", uptimePercent < 90)
                 } style={fmt.Sprintf("width: %.1f%%", uptimePercent)}></div>
             </div>

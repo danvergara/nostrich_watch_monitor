@@ -4,6 +4,7 @@ go 1.24.4
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.2
+	github.com/a-h/templ v0.3.943
 	github.com/go-co-op/gocron/v2 v2.16.2
 	github.com/golang-migrate/migrate/v4 v4.18.3
 	github.com/hibiken/asynq v0.25.1
