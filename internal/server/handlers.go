@@ -95,6 +95,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 
 func dashboarIndexHandler(_ *config.Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		views.Dashboard(GetMockRelays()).Render(r.Context(), w)
+		_ = views.Dashboard(GetMockRelays()).Render(r.Context(), w)
 	}
 }
