@@ -35,7 +35,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 			LastCheckTime:    "2 min ago",
 			WebsocketSuccess: true,
 			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
 		},
 		{
 			URL:              "wss://nostr.wine",
@@ -49,7 +48,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 			LastCheckTime:    "2 min ago",
 			WebsocketSuccess: true,
 			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
 		},
 		{
 			URL:              "wss://relay.snort.social",
@@ -63,7 +61,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 			LastCheckTime:    "2 min ago",
 			WebsocketSuccess: true,
 			NIP11Success:     &nip11Success,
-			IsRecommended:    false,
 		},
 		{
 			URL:              "wss://relay.current.fyi",
@@ -77,7 +74,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 			LastCheckTime:    "2 min ago",
 			WebsocketSuccess: true,
 			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
 		},
 		{
 			URL:              "wss://nos.lol",
@@ -91,7 +87,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 			LastCheckTime:    "2 min ago",
 			WebsocketSuccess: false,
 			NIP11Success:     &nip11Failed,
-			IsRecommended:    false,
 		},
 	}
 

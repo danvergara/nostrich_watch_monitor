@@ -1,0 +1,67 @@
+package components
+
+import (
+    "github.com/danvergara/nostrich_watch_monitor/pkg/domain"
+)
+
+templ RelayTable(relays []domain.RelayDisplayData) {
+    <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[1200px]">
+                <thead class="bg-gray-50 dark:bg-gray-800 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-2 py-3 text-center text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center justify-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Status</span>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Relay</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Uptime</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Connection</span>
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4"></path>
+                                </svg>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>NIP-11</span>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Type</span>
+                            </button>
+                        </th>
+                        <th class="px-2 py-3 text-left text-sm md:text-base font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                            <button class="flex items-center space-x-1 hover:text-gray-700 dark:hover:text-gray-300">
+                                <span>Last Check</span>
+                            </button>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                    for _, relay := range relays {
+                        @RelayTableRow(relay)
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

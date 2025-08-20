@@ -33,5 +33,4 @@ type RelayDisplayData struct {
 	LastCheckTime    string // When the last check cycle ran
 	WebsocketSuccess bool
 	NIP11Success     *bool
-	IsRecommended    bool
 }

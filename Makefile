@@ -13,7 +13,7 @@ build:
 	go build -o monitor .
 
 .PHONY: dev
-dev:
+dev: build-css
 	templ generate --watch --cmd="go generate" &\
 	templ generate --watch --cmd="go run main.go server"
 
@@ -25,12 +25,12 @@ create-migration:
 .PHONY: css
 ## css: Watch and compile Tailwind CSS for development
 css:
-	npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/styles.css --watch
+	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/styles.css --watch
 
 .PHONY: build-css
 ## build-css: Build and minify Tailwind CSS for production
 build-css:
-	npx @tailwindcss/cli -i ./web/static/css/input.css -o ./web/static/css/styles.css --minify
+	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/styles.css --minify
 
 .PHONY: help
 ## help: Prints this help message

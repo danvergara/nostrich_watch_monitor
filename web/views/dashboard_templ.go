@@ -54,17 +54,15 @@ func Dashboard(relays []domain.RelayDisplayData) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><!-- Hero Section --><div class=\"text-center mb-12\"><h2 class=\"text-4xl font-bold text-white mb-4\">Discover Reliable Nostr Relays</h2><p class=\"text-xl text-gray-400 max-w-3xl mx-auto\">Find the most reliable relays based on uptime, connection speed, and NIP-11 support. Choose from public, paid, or Web of Trust relays.</p></div><!-- All Relays --><div><h3 class=\"text-2xl font-bold text-white mb-6\">All Relays</h3><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><!-- Hero Section --><div class=\"text-center mb-12\"><h2 class=\"text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-4\">Discover Reliable Nostr Relays</h2><p class=\"text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto\">Find the most reliable relays based on uptime, connection speed, and NIP-11 support. Choose from public, paid, or Web of Trust relays.</p></div><!-- All Relays --><div><h3 class=\"text-2xl md:text-3xl lg:text-4xl font-bold text-white mb-6\">Nostr Relays Rankings</h3><p class=\"text-lg md:text-xl lg:text-2xl text-gray-400 mb-8\">Discover and analyze reliable Nostr relays based on connectivity and network metrics.</p>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			for _, relay := range relays {
-				templ_7745c5c3_Err = components.RelayCard(relay, false).Render(ctx, templ_7745c5c3_Buffer)
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
+			templ_7745c5c3_Err = components.RelayTable(relays).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
