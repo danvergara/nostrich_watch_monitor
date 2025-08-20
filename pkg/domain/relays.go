@@ -35,9 +35,3 @@ type RelayDisplayData struct {
 	NIP11Success     *bool
 	IsRecommended    bool
 }
-
-type DashboardData struct {
-	FeaturedRelays []RelayDisplayData
-	AllRelays      []RelayDisplayData
-	LastUpdated    string
-}

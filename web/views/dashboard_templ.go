@@ -13,108 +13,7 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/web/views/components"
 )
 
-func GetMockDashboardData() domain.DashboardData {
-	rttOpen45 := 45
-	rttOpen32 := 32
-	rttOpen78 := 78
-	rttOpen56 := 56
-
-	rttNip1125 := 25
-	rttNip1140 := 40
-	rttNip1135 := 35
-	rttNip1150 := 50
-
-	nip11Success := true
-	nip11Failed := false
-
-	mockRelays := []domain.RelayDisplayData{
-		{
-			URL:              "wss://relay.damus.io",
-			Name:             "Damus Relay",
-			Description:      "High-performance relay optimized for mobile clients with excellent uptime and fast response times.",
-			UptimePercent:    99.2,
-			Classification:   "Public",
-			RTTOpen:          &rttOpen45,
-			RTTNIP11:         &rttNip1125,
-			IsOnline:         true,
-			LastCheckTime:    "2 min ago",
-			WebsocketSuccess: true,
-			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
-		},
-		{
-			URL:              "wss://nostr.wine",
-			Name:             "Nostr Wine",
-			Description:      "Premium paid relay with advanced spam filtering and guaranteed message delivery.",
-			UptimePercent:    98.7,
-			Classification:   "Paid",
-			RTTOpen:          &rttOpen32,
-			RTTNIP11:         &rttNip1140,
-			IsOnline:         true,
-			LastCheckTime:    "2 min ago",
-			WebsocketSuccess: true,
-			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
-		},
-		{
-			URL:              "wss://relay.snort.social",
-			Name:             "Snort Social",
-			Description:      "Community-driven relay focused on social interactions and content discovery.",
-			UptimePercent:    97.1,
-			Classification:   "Public",
-			RTTOpen:          &rttOpen78,
-			RTTNIP11:         &rttNip1135,
-			IsOnline:         true,
-			LastCheckTime:    "2 min ago",
-			WebsocketSuccess: true,
-			NIP11Success:     &nip11Success,
-			IsRecommended:    false,
-		},
-		{
-			URL:              "wss://relay.current.fyi",
-			Name:             "Current",
-			Description:      "Web of Trust relay with curated content and verified user network.",
-			UptimePercent:    96.8,
-			Classification:   "WoT",
-			RTTOpen:          &rttOpen56,
-			RTTNIP11:         &rttNip1150,
-			IsOnline:         true,
-			LastCheckTime:    "2 min ago",
-			WebsocketSuccess: true,
-			NIP11Success:     &nip11Success,
-			IsRecommended:    true,
-		},
-		{
-			URL:              "wss://nos.lol",
-			Name:             "nos.lol",
-			Description:      "Fun and fast relay with a focus on memes, jokes, and light-hearted content.",
-			UptimePercent:    94.2,
-			Classification:   "Public",
-			RTTOpen:          nil, // Offline, no RTT data
-			RTTNIP11:         nil,
-			IsOnline:         false,
-			LastCheckTime:    "2 min ago",
-			WebsocketSuccess: false,
-			NIP11Success:     &nip11Failed,
-			IsRecommended:    false,
-		},
-	}
-
-	var featured []domain.RelayDisplayData
-	for _, relay := range mockRelays {
-		if relay.IsRecommended {
-			featured = append(featured, relay)
-		}
-	}
-
-	return domain.DashboardData{
-		FeaturedRelays: featured,
-		AllRelays:      mockRelays,
-		LastUpdated:    "2 minutes ago",
-	}
-}
-
-func Dashboard() templ.Component {
+func Dashboard(relays []domain.RelayDisplayData) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -147,46 +46,25 @@ func Dashboard() templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			data := GetMockDashboardData()
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"min-h-screen bg-gray-900\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = components.Navigation(data.LastUpdated).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = components.Navigation().Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><!-- Hero Section --><div class=\"text-center mb-12\"><h2 class=\"text-4xl font-bold text-white mb-4\">Discover Reliable Nostr Relays</h2><p class=\"text-xl text-gray-400 max-w-3xl mx-auto\">Find the most reliable relays based on uptime, connection speed, and NIP-11 support. Choose from public, paid, or Web of Trust relays.</p></div><!-- Featured/Recommended Relays -->")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8\"><!-- Hero Section --><div class=\"text-center mb-12\"><h2 class=\"text-4xl font-bold text-white mb-4\">Discover Reliable Nostr Relays</h2><p class=\"text-xl text-gray-400 max-w-3xl mx-auto\">Find the most reliable relays based on uptime, connection speed, and NIP-11 support. Choose from public, paid, or Web of Trust relays.</p></div><!-- All Relays --><div><h3 class=\"text-2xl font-bold text-white mb-6\">All Relays</h3><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			if len(data.FeaturedRelays) > 0 {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<div class=\"mb-12\"><h3 class=\"text-2xl font-bold text-white mb-6 flex items-center\"><svg class=\"w-6 h-6 text-yellow-400 mr-2\" fill=\"currentColor\" viewBox=\"0 0 24 24\"><path d=\"M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z\"></path></svg> Recommended Relays</h3><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-				for _, relay := range data.FeaturedRelays {
-					templ_7745c5c3_Err = components.RelayCard(relay, true).Render(ctx, templ_7745c5c3_Buffer)
-					if templ_7745c5c3_Err != nil {
-						return templ_7745c5c3_Err
-					}
-				}
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div></div>")
-				if templ_7745c5c3_Err != nil {
-					return templ_7745c5c3_Err
-				}
-			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<!-- All Relays --><div><h3 class=\"text-2xl font-bold text-white mb-6\">All Relays</h3><div class=\"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6\">")
-			if templ_7745c5c3_Err != nil {
-				return templ_7745c5c3_Err
-			}
-			for _, relay := range data.AllRelays {
+			for _, relay := range relays {
 				templ_7745c5c3_Err = components.RelayCard(relay, false).Render(ctx, templ_7745c5c3_Buffer)
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</div></div></div></div>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</div></div></div></div>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

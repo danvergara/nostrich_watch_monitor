@@ -8,7 +8,7 @@ package components
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-func Navigation(lastUpdated string) templ.Component {
+func Navigation() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -29,20 +29,7 @@ func Navigation(lastUpdated string) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"border-b border-gray-800 bg-gray-900/95 backdrop-blur\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between items-center py-6\"><div class=\"flex items-center space-x-4\"><h1 class=\"text-2xl font-bold text-white\">NostrWatch</h1><span class=\"text-sm text-purple-400 font-medium\">Relay Directory</span></div><div class=\"flex items-center space-x-8\"><nav class=\"hidden md:flex space-x-8\"><a href=\"/\" class=\"text-purple-400 hover:text-purple-300 font-medium\">Network</a> <a href=\"/relays\" class=\"text-gray-400 hover:text-white\">Relays</a> <a href=\"/analytics\" class=\"text-gray-400 hover:text-white\">Analytics</a></nav><div class=\"text-sm text-gray-500\">Updated ")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var2 string
-		templ_7745c5c3_Var2, templ_7745c5c3_Err = templ.JoinStringErrs(lastUpdated)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/views/components/navigation.templ`, Line: 18, Col: 44}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var2))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</div></div></div></div></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"border-b border-gray-800 bg-gray-900/95 backdrop-blur\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between items-center py-6\"><div class=\"flex items-center space-x-4\"><a href=\"/\" class=\"text-2xl font-bold text-white hover:text-purple-300 transition-colors\">NostrWatch</a> <span class=\"text-sm text-purple-400 font-medium\">Relay Directory</span></div></div></div></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
