@@ -59,7 +59,7 @@ var schedulerCmd = &cobra.Command{
 		relayRepo := postgres.NewRelayRepository(db)
 
 		// Retrieve a list of relays to perfom health checks on.
-		relays, err := relayRepo.List(ctx)
+		relays, err := relayRepo.List(ctx, nil)
 		if err != nil {
 			return err
 		}
