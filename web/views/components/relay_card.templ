@@ -2,10 +2,10 @@ package components
 
 import (
     "fmt"
-    "github.com/danvergara/nostrich_watch_monitor/pkg/domain"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 )
 
-templ RelayCard(relay domain.RelayDisplayData, isFeatured bool) {
+templ RelayCard(relay presentation.RelayTableViewModel, isFeatured bool) {
     <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-200 hover:shadow-lg">
         <!-- Header with Status Indicator -->
         <div class="flex items-start justify-between mb-4">
@@ -33,8 +33,8 @@ templ RelayCard(relay domain.RelayDisplayData, isFeatured bool) {
             @ClassificationBadge(relay.Classification)
         </div>
 
-        <!-- Description -->
-        <p class="text-sm text-gray-300 mb-4 line-clamp-2">{relay.Description}</p>
+        <!-- Description - Note: Description not available in RelayTableViewModel -->
+        <!-- <p class="text-sm text-gray-300 mb-4 line-clamp-2">{relay.Description}</p> -->
 
         <!-- Metrics -->
         @RelayMetrics(relay)
@@ -74,7 +74,7 @@ templ ClassificationBadge(classification string) {
     </span>
 }
 
-templ RelayMetrics(relay domain.RelayDisplayData) {
+templ RelayMetrics(relay presentation.RelayTableViewModel) {
     <div class="space-y-3 mb-4">
         <!-- Uptime -->
         @UptimeBar(relay.UptimePercent)

@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/danvergara/nostrich_watch_monitor/internal/config"
-	"github.com/danvergara/nostrich_watch_monitor/pkg/domain"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 	"github.com/danvergara/nostrich_watch_monitor/web/views"
 )
 
-func GetMockRelays() []domain.RelayDisplayData {
+func GetMockRelays() []presentation.RelayTableViewModel {
 	rttOpen45 := 45
 	rttOpen32 := 32
 	rttOpen78 := 78
@@ -22,11 +22,10 @@ func GetMockRelays() []domain.RelayDisplayData {
 	nip11Success := true
 	nip11Failed := false
 
-	mockRelays := []domain.RelayDisplayData{
+	mockRelays := []presentation.RelayTableViewModel{
 		{
 			URL:              "wss://relay.damus.io",
 			Name:             "Damus Relay",
-			Description:      "High-performance relay optimized for mobile clients with excellent uptime and fast response times.",
 			UptimePercent:    99.2,
 			Classification:   "Public",
 			RTTOpen:          &rttOpen45,
@@ -39,7 +38,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 		{
 			URL:              "wss://nostr.wine",
 			Name:             "Nostr Wine",
-			Description:      "Premium paid relay with advanced spam filtering and guaranteed message delivery.",
 			UptimePercent:    98.7,
 			Classification:   "Paid",
 			RTTOpen:          &rttOpen32,
@@ -52,7 +50,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 		{
 			URL:              "wss://relay.snort.social",
 			Name:             "Snort Social",
-			Description:      "Community-driven relay focused on social interactions and content discovery.",
 			UptimePercent:    97.1,
 			Classification:   "Public",
 			RTTOpen:          &rttOpen78,
@@ -65,7 +62,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 		{
 			URL:              "wss://relay.current.fyi",
 			Name:             "Current",
-			Description:      "Web of Trust relay with curated content and verified user network.",
 			UptimePercent:    96.8,
 			Classification:   "WoT",
 			RTTOpen:          &rttOpen56,
@@ -78,7 +74,6 @@ func GetMockRelays() []domain.RelayDisplayData {
 		{
 			URL:              "wss://nos.lol",
 			Name:             "nos.lol",
-			Description:      "Fun and fast relay with a focus on memes, jokes, and light-hearted content.",
 			UptimePercent:    94.2,
 			Classification:   "Public",
 			RTTOpen:          nil, // Offline, no RTT data
@@ -96,5 +91,77 @@ func GetMockRelays() []domain.RelayDisplayData {
 func dashboarIndexHandler(_ *config.Config) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		_ = views.Dashboard(GetMockRelays()).Render(r.Context(), w)
+	}
+}
+
+func GetMockRelayDetail(url string) presentation.RelayDetailViewModel {
+	rttOpen45 := 45
+	rttRead120 := 120
+	rttWrite80 := 80
+	rttNip1125 := 25
+
+	avgRttOpen50 := 50
+	avgRttRead130 := 130
+	avgRttWrite85 := 85
+	avgRttNip1130 := 30
+
+	return presentation.RelayDetailViewModel{
+		// Basic Info
+		URL:         url,
+		Name:        "Damus Relay",
+		Description: "High-performance relay optimized for mobile clients with excellent uptime and fast response times. Supports all major NIPs and provides reliable message delivery.",
+		Contact:     "admin@damus.io",
+		PubKey:      "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
+
+		// Current Status
+		IsOnline:        true,
+		LastCheckTime:   "2 min ago",
+		CurrentRTTOpen:  &rttOpen45,
+		CurrentRTTRead:  &rttRead120,
+		CurrentRTTWrite: &rttWrite80,
+		CurrentRTTNIP11: &rttNip1125,
+
+		// Aggregated Health Data
+		UptimePercent: 99.2,
+		AvgRTTOpen:    &avgRttOpen50,
+		AvgRTTRead:    &avgRttRead130,
+		AvgRTTWrite:   &avgRttWrite85,
+		AvgRTTNIP11:   &avgRttNip1130,
+		TotalChecks:   1440, // 24 hours * 60 checks per hour
+		FailedChecks:  12,
+
+		// Technical Info
+		Software:      "strfry",
+		Version:       "0.9.6",
+		SupportedNIPs: []int{1, 2, 4, 9, 11, 12, 15, 16, 20, 22, 28, 33, 40, 42, 45, 50, 51, 65},
+		Countries:     []string{"US"},
+		LanguageTags:  []string{"en", "en-US"},
+		Tags:          []string{"public", "mobile-optimized", "high-performance"},
+
+		// Policy URLs
+		PrivacyPolicy:  "https://damus.io/privacy",
+		TermsOfService: "https://damus.io/terms",
+		PostingPolicy:  "https://damus.io/posting-policy",
+		Icon:           "https://damus.io/img/logo.png",
+		Banner:         "https://damus.io/img/banner.jpg",
+
+		// Classification
+		Classification: "Public",
+	}
+}
+
+func relayDetailHandler(_ *config.Config) func(w http.ResponseWriter, r *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		relayURL := r.URL.Query().Get("url")
+		if relayURL == "" {
+			http.Error(w, "URL parameter required", http.StatusBadRequest)
+			return
+		}
+
+		// Get mock relay detail data
+		relayData := GetMockRelayDetail(relayURL)
+
+		// Render the RelayDetail template (uncomment after running templ generate)
+		_ = views.RelayDetail(relayData).Render(r.Context(), w)
 	}
 }

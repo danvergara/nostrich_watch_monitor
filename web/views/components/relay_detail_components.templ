@@ -1,0 +1,220 @@
+package components
+
+import (
+    "fmt"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
+)
+
+templ PerformanceCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-6">Performance Metrics</h3>
+        
+        <!-- Uptime Bar -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-gray-400">Uptime</span>
+                <span class="text-white font-semibold">{fmt.Sprintf("%.1f%%", relay.UptimePercent)}</span>
+            </div>
+            <div class="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
+                <div class={
+                    "h-full rounded-full transition-all",
+                    templ.KV("bg-green-400", relay.UptimePercent >= 95),
+                    templ.KV("bg-yellow-400", relay.UptimePercent >= 90 && relay.UptimePercent < 95),
+                    templ.KV("bg-red-400", relay.UptimePercent < 90)
+                } style={fmt.Sprintf("width: %.1f%%", relay.UptimePercent)}></div>
+            </div>
+        </div>
+        
+        <!-- RTT Metrics Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            @RTTMetric("Connection", relay.CurrentRTTOpen, relay.AvgRTTOpen)
+            @RTTMetric("Read", relay.CurrentRTTRead, relay.AvgRTTRead)
+            @RTTMetric("Write", relay.CurrentRTTWrite, relay.AvgRTTWrite)
+            @RTTMetric("NIP-11", relay.CurrentRTTNIP11, relay.AvgRTTNIP11)
+        </div>
+    </div>
+}
+
+templ RTTMetric(label string, current *int, avg *int) {
+    <div class="text-center">
+        <div class="text-sm text-gray-400 mb-1">{label}</div>
+        if current != nil {
+            <div class={
+                "text-lg font-semibold mb-1",
+                templ.KV("text-green-400", *current < 100),
+                templ.KV("text-yellow-400", *current >= 100 && *current < 300),
+                templ.KV("text-red-400", *current >= 300)
+            }>{fmt.Sprintf("%dms", *current)}</div>
+        } else {
+            <div class="text-lg font-semibold text-gray-500 mb-1">N/A</div>
+        }
+        if avg != nil {
+            <div class="text-xs text-gray-500">avg {fmt.Sprintf("%dms", *avg)}</div>
+        }
+    </div>
+}
+
+templ TechnicalSpecsCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-6">Technical Specifications</h3>
+        
+        <!-- Software Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div>
+                <div class="text-sm text-gray-400 mb-1">Software</div>
+                <div class="text-white font-medium">{relay.Software}</div>
+            </div>
+            <div>
+                <div class="text-sm text-gray-400 mb-1">Version</div>
+                <div class="text-white font-medium">{relay.Version}</div>
+            </div>
+        </div>
+        
+        <!-- Supported NIPs -->
+        <div class="mb-6">
+            <div class="text-sm text-gray-400 mb-3">Supported NIPs</div>
+            <div class="flex flex-wrap gap-2">
+                for _, nip := range relay.SupportedNIPs {
+                    <span class="px-2 py-1 bg-purple-500/10 text-purple-400 rounded text-sm font-medium">
+                        NIP-{fmt.Sprintf("%d", nip)}
+                    </span>
+                }
+            </div>
+        </div>
+        
+        <!-- Geographic & Tags -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            if len(relay.Countries) > 0 {
+                <div>
+                    <div class="text-sm text-gray-400 mb-2">Countries</div>
+                    <div class="flex flex-wrap gap-1">
+                        for _, country := range relay.Countries {
+                            <span class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-sm">{country}</span>
+                        }
+                    </div>
+                </div>
+            }
+            if len(relay.Tags) > 0 {
+                <div>
+                    <div class="text-sm text-gray-400 mb-2">Tags</div>
+                    <div class="flex flex-wrap gap-1">
+                        for _, tag := range relay.Tags {
+                            <span class="px-2 py-1 bg-gray-500/10 text-gray-400 rounded text-sm">{tag}</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+templ ContactInfoCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-4">Contact Information</h3>
+        
+        if relay.Contact != "" {
+            <div class="mb-4">
+                <div class="text-sm text-gray-400 mb-1">Contact</div>
+                <div class="text-white">{relay.Contact}</div>
+            </div>
+        }
+        
+        if relay.PubKey != "" {
+            <div>
+                <div class="text-sm text-gray-400 mb-1">Public Key</div>
+                <div class="text-white font-mono text-sm break-all">{relay.PubKey}</div>
+            </div>
+        }
+    </div>
+}
+
+templ StatisticsCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-4">Statistics</h3>
+        
+        <div class="space-y-4">
+            <div class="flex justify-between">
+                <span class="text-gray-400">Total Checks</span>
+                <span class="text-white font-semibold">{fmt.Sprintf("%d", relay.TotalChecks)}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-400">Failed Checks</span>
+                <span class="text-red-400 font-semibold">{fmt.Sprintf("%d", relay.FailedChecks)}</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-400">Success Rate</span>
+                <span class="text-green-400 font-semibold">
+                    {fmt.Sprintf("%.1f%%", float64(relay.TotalChecks-relay.FailedChecks)/float64(relay.TotalChecks)*100)}
+                </span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-400">Last Check</span>
+                <span class="text-white">{relay.LastCheckTime}</span>
+            </div>
+        </div>
+    </div>
+}
+
+templ PoliciesCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-4">Policies & Links</h3>
+        
+        <div class="space-y-3">
+            if relay.PrivacyPolicy != "" {
+                <a href={templ.URL(relay.PrivacyPolicy)} target="_blank" 
+                   class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                    <span class="text-white">Privacy Policy</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-1M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+            }
+            if relay.TermsOfService != "" {
+                <a href={templ.URL(relay.TermsOfService)} target="_blank"
+                   class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                    <span class="text-white">Terms of Service</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-1M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+            }
+            if relay.PostingPolicy != "" {
+                <a href={templ.URL(relay.PostingPolicy)} target="_blank"
+                   class="flex items-center justify-between p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors">
+                    <span class="text-white">Posting Policy</span>
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-1M14 4h6m0 0v6m0-6L10 14"/>
+                    </svg>
+                </a>
+            }
+        </div>
+    </div>
+}
+
+templ HealthHistoryCard(relay presentation.RelayDetailViewModel) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
+        <h3 class="text-xl font-semibold text-white mb-6">Health History</h3>
+        
+        <!-- Placeholder for future chart implementation -->
+        <div class="flex items-center justify-center h-32 bg-gray-700 rounded-lg">
+            <div class="text-center">
+                <svg class="w-8 h-8 text-gray-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                <p class="text-gray-500 text-sm">Performance chart coming soon</p>
+            </div>
+        </div>
+        
+        <!-- Quick stats for now -->
+        <div class="mt-4 grid grid-cols-2 gap-4 text-center">
+            <div>
+                <div class="text-2xl font-bold text-green-400">{fmt.Sprintf("%.1f%%", relay.UptimePercent)}</div>
+                <div class="text-sm text-gray-400">Uptime</div>
+            </div>
+            <div>
+                <div class="text-2xl font-bold text-white">{fmt.Sprintf("%d", relay.TotalChecks)}</div>
+                <div class="text-sm text-gray-400">Total Checks</div>
+            </div>
+        </div>
+    </div>
+}

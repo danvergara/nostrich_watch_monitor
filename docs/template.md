@@ -27,19 +27,27 @@ web/views/
 
 ## 📊 Data Structure:
 
+**Updated**: Now using Clean Architecture view models instead of RelayDisplayData.
+
 ```go
-type RelayDisplayData struct {
-    URL            string
-    Name           string
-    Description    string
-    UptimePercent  float64
-    Classification string // "Public", "Paid", "WoT", "Private"
-    RTTOpen        *int   // WebSocket connection time (ms)
-    RTTNIP11       *int   // NIP-11 fetch time (ms)
-    IsOnline       bool   // Current status from latest check
-    LastCheckTime  string // When the last check cycle ran
+// For dashboard table display
+type RelayTableViewModel struct {
+    URL              string
+    Name             string
+    IsOnline         bool
+    UptimePercent    float64
+    Classification   string // "Public", "Paid", "WoT", "Private"
+    RTTOpen          *int   // WebSocket connection time (ms)
+    RTTNIP11         *int   // NIP-11 fetch time (ms)
+    LastCheckTime    string // When the last check cycle ran
     WebsocketSuccess bool
-    NIP11Success   *bool
+    NIP11Success     *bool
+}
+
+// For future detail pages (defined but not used yet)
+type RelayDetailViewModel struct {
+    // Comprehensive relay data including all domain.Relay fields
+    // plus aggregated health check data
 }
 ```
 

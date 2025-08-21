@@ -1,10 +1,10 @@
 package components
 
 import (
-    "github.com/danvergara/nostrich_watch_monitor/pkg/domain"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 )
 
-templ RelayTable(relays []domain.RelayDisplayData) {
+templ RelayTable(relays []presentation.RelayTableViewModel) {
     <div class="bg-white dark:bg-gray-900 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full min-w-[1200px]">

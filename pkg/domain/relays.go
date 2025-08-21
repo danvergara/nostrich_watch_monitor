@@ -20,17 +20,3 @@ type Relay struct {
 	Tags           []string `db:"tags"`
 	PostingPolicy  string   `db:"posting_policy"`
 }
-
-type RelayDisplayData struct {
-	URL              string
-	Name             string
-	Description      string
-	UptimePercent    float64
-	Classification   string // "Public", "Paid", "WoT", "Private"
-	RTTOpen          *int   // WebSocket connection time (ms)
-	RTTNIP11         *int   // NIP-11 fetch time (ms)
-	IsOnline         bool   // Current status from latest check
-	LastCheckTime    string // When the last check cycle ran
-	WebsocketSuccess bool
-	NIP11Success     *bool
-}

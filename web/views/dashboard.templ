@@ -2,10 +2,10 @@ package views
 
 import (
   "github.com/danvergara/nostrich_watch_monitor/web/views/components"
-  "github.com/danvergara/nostrich_watch_monitor/pkg/domain"
+  "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 )
 
-templ Dashboard(relays []domain.RelayDisplayData) {
+templ Dashboard(relays []presentation.RelayTableViewModel) {
     @Base("Dashboard") {
         <div class="min-h-screen bg-gray-900">
             @components.Navigation()
