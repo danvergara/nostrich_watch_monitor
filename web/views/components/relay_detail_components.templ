@@ -9,21 +9,7 @@ templ PerformanceCard(relay presentation.RelayDetailViewModel) {
     <div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
         <h3 class="text-xl font-semibold text-white mb-6">Performance Metrics</h3>
         
-        <!-- Uptime Bar -->
-        <div class="mb-6">
-            <div class="flex items-center justify-between mb-2">
-                <span class="text-gray-400">Uptime</span>
-                <span class="text-white font-semibold">{fmt.Sprintf("%.1f%%", relay.UptimePercent)}</span>
-            </div>
-            <div class="w-full h-3 bg-gray-700 rounded-full overflow-hidden">
-                <div class={
-                    "h-full rounded-full transition-all",
-                    templ.KV("bg-green-400", relay.UptimePercent >= 95),
-                    templ.KV("bg-yellow-400", relay.UptimePercent >= 90 && relay.UptimePercent < 95),
-                    templ.KV("bg-red-400", relay.UptimePercent < 90)
-                } style={fmt.Sprintf("width: %.1f%%", relay.UptimePercent)}></div>
-            </div>
-        </div>
+
         
         <!-- RTT Metrics Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -206,11 +192,7 @@ templ HealthHistoryCard(relay presentation.RelayDetailViewModel) {
         </div>
         
         <!-- Quick stats for now -->
-        <div class="mt-4 grid grid-cols-2 gap-4 text-center">
-            <div>
-                <div class="text-2xl font-bold text-green-400">{fmt.Sprintf("%.1f%%", relay.UptimePercent)}</div>
-                <div class="text-sm text-gray-400">Uptime</div>
-            </div>
+        <div class="mt-4 grid grid-cols-1 gap-4 text-center">
             <div>
                 <div class="text-2xl font-bold text-white">{fmt.Sprintf("%d", relay.TotalChecks)}</div>
                 <div class="text-sm text-gray-400">Total Checks</div>

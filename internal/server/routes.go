@@ -14,5 +14,5 @@ func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS) {
 	)
 
 	mux.HandleFunc("/", dashboarIndexHandler(cfg))
-	mux.HandleFunc("/api/v1/relay", relayDetailHandler(cfg))
+	mux.HandleFunc("/relay", relayDetailHandler(cfg))
 }

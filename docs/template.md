@@ -19,7 +19,7 @@ web/views/
 2. **Table Layout**: Comprehensive relay data table with sortable columns
 3. **Component Architecture**: Reusable table and row components
 4. **Status Indicators**: Centered online/offline circles with color coding
-5. **Performance Metrics**: Connection time, uptime bars, NIP-11 support with RTT
+5. **Performance Metrics**: Connection time, NIP-11 support with RTT
 6. **Classification Badges**: Public/Paid/WoT/Private with distinct color coding
 7. **Responsive Design**: Optimized table layout with horizontal scrolling on mobile
 8. **Typography**: Enhanced font sizes for better readability
@@ -77,7 +77,7 @@ To see your dashboard in action, you'll need to:
 ## 🎨 Visual Features:
 
 - **Status indicators**: Centered green/red circles for online/offline status
-- **Progress bars**: Visual uptime representation with color-coded thresholds
+
 - **Classification badges**: Rounded badges with distinct colors for relay types
 - **Table layout**: Clean, sortable table with hover effects
 - **Typography**: Enhanced font sizes (text-base to text-lg) for better readability
@@ -90,11 +90,10 @@ To see your dashboard in action, you'll need to:
 The main relay table includes the following columns:
 1. **Status**: Centered online/offline indicator circles
 2. **Relay**: Name, URL, and avatar with enhanced typography
-3. **Uptime**: Progress bar with percentage display
-4. **Connection**: WebSocket connection time with color-coded thresholds
-5. **NIP-11**: Support indicator with response time
-6. **Type**: Classification badge (Public/Paid/WoT/Private)
-7. **Last Check**: Timestamp and status text
+3. **Connection**: WebSocket connection time with color-coded thresholds
+4. **NIP-11**: Support indicator with response time
+5. **Type**: Classification badge (Public/Paid/WoT/Private)
+6. **Last Check**: Timestamp and status text
 
 ## 🎛️ Layout Specifications:
 

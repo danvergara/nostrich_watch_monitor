@@ -76,8 +76,7 @@ templ ClassificationBadge(classification string) {
 
 templ RelayMetrics(relay presentation.RelayTableViewModel) {
     <div class="space-y-3 mb-4">
-        <!-- Uptime -->
-        @UptimeBar(relay.UptimePercent)
+
         
         <!-- Connection Performance -->
         <div class="flex items-center justify-between">
@@ -115,19 +114,4 @@ templ RelayMetrics(relay presentation.RelayTableViewModel) {
     </div>
 }
 
-templ UptimeBar(uptimePercent float64) {
-    <div class="flex items-center justify-between">
-        <span class="text-sm text-gray-400">Uptime</span>
-        <div class="flex items-center gap-2">
-            <div class="w-16 h-2 bg-gray-700 rounded-full overflow-hidden">
-                <div class={
-                    "h-full rounded-full transition-all ",
-                    templ.KV("bg-green-400", uptimePercent >= 95),
-                    templ.KV("bg-yellow-400", uptimePercent >= 90 && uptimePercent < 95),
-                    templ.KV("bg-red-400", uptimePercent < 90)
-                } style={fmt.Sprintf("width: %.1f%%", uptimePercent)}></div>
-            </div>
-            <span class="text-sm font-medium text-white">{fmt.Sprintf("%.1f%%", uptimePercent)}</span>
-        </div>
-    </div>
-}
+

@@ -26,7 +26,7 @@ func GetMockRelays() []presentation.RelayTableViewModel {
 		{
 			URL:              "wss://relay.damus.io",
 			Name:             "Damus Relay",
-			UptimePercent:    99.2,
+			UptimePercent:    0, // Hidden from MVP
 			Classification:   "Public",
 			RTTOpen:          &rttOpen45,
 			RTTNIP11:         &rttNip1125,
@@ -38,7 +38,7 @@ func GetMockRelays() []presentation.RelayTableViewModel {
 		{
 			URL:              "wss://nostr.wine",
 			Name:             "Nostr Wine",
-			UptimePercent:    98.7,
+			UptimePercent:    0, // Hidden from MVP
 			Classification:   "Paid",
 			RTTOpen:          &rttOpen32,
 			RTTNIP11:         &rttNip1140,
@@ -50,7 +50,7 @@ func GetMockRelays() []presentation.RelayTableViewModel {
 		{
 			URL:              "wss://relay.snort.social",
 			Name:             "Snort Social",
-			UptimePercent:    97.1,
+			UptimePercent:    0, // Hidden from MVP
 			Classification:   "Public",
 			RTTOpen:          &rttOpen78,
 			RTTNIP11:         &rttNip1135,
@@ -62,7 +62,7 @@ func GetMockRelays() []presentation.RelayTableViewModel {
 		{
 			URL:              "wss://relay.current.fyi",
 			Name:             "Current",
-			UptimePercent:    96.8,
+			UptimePercent:    0, // Hidden from MVP
 			Classification:   "WoT",
 			RTTOpen:          &rttOpen56,
 			RTTNIP11:         &rttNip1150,
@@ -74,7 +74,7 @@ func GetMockRelays() []presentation.RelayTableViewModel {
 		{
 			URL:              "wss://nos.lol",
 			Name:             "nos.lol",
-			UptimePercent:    94.2,
+			UptimePercent:    0, // Hidden from MVP
 			Classification:   "Public",
 			RTTOpen:          nil, // Offline, no RTT data
 			RTTNIP11:         nil,
@@ -122,7 +122,7 @@ func GetMockRelayDetail(url string) presentation.RelayDetailViewModel {
 		CurrentRTTNIP11: &rttNip1125,
 
 		// Aggregated Health Data
-		UptimePercent: 99.2,
+		UptimePercent: 0, // Hidden from MVP
 		AvgRTTOpen:    &avgRttOpen50,
 		AvgRTTRead:    &avgRttRead130,
 		AvgRTTWrite:   &avgRttWrite85,
