@@ -19,4 +19,5 @@ type Relay struct {
 	LanguageTags   []string `db:"language_tags"`
 	Tags           []string `db:"tags"`
 	PostingPolicy  string   `db:"posting_policy"`
+	*HealthCheck   `db:"healt_hcheck"`
 }
