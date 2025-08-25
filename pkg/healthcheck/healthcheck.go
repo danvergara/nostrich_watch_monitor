@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/jmoiron/sqlx"
-	_ "github.com/lib/pq"
+	"github.com/lib/pq"
 	"github.com/nbd-wtf/go-nostr"
 	"github.com/nbd-wtf/go-nostr/nip11"
 
@@ -114,26 +114,32 @@ func (rc *RelayChecker) CheckRelay(ctx context.Context, relayURL string) error {
 	}
 
 	// If NIP-11 was successful, update relay metadata.
-	supportedNIPs, err := convertAnyToInt(info.SupportedNIPs)
+	supportedNIPsSlice, err := convertAnyToInt(info.SupportedNIPs)
 	if err != nil {
 		return err
 	}
 
+	// Convert []int to pq.Int64Array
+	var supportedNIPs pq.Int64Array
+	for _, nip := range supportedNIPsSlice {
+		supportedNIPs = append(supportedNIPs, int64(nip))
+	}
+
 	relayInfo := domain.Relay{
 		URL:            relayURL,
-		Name:           info.Name,
-		Description:    info.Description,
-		PubKey:         info.PubKey,
-		Contact:        info.Contact,
+		Name:           &info.Name,
+		Description:    &info.Description,
+		PubKey:         &info.PubKey,
+		Contact:        &info.Contact,
 		SupportedNIPs:  supportedNIPs,
-		Software:       info.Software,
-		Version:        info.Version,
-		Icon:           info.Icon,
-		Banner:         info.Banner,
-		PostingPolicy:  info.PostingPolicy,
-		Tags:           info.Tags,
-		LanguageTags:   info.LanguageTags,
-		RelayCountries: info.RelayCountries,
+		Software:       &info.Software,
+		Version:        &info.Version,
+		Icon:           &info.Icon,
+		Banner:         &info.Banner,
+		PostingPolicy:  &info.PostingPolicy,
+		Tags:           pq.StringArray(info.Tags),
+		LanguageTags:   pq.StringArray(info.LanguageTags),
+		RelayCountries: pq.StringArray(info.RelayCountries),
 	}
 
 	relayRepo := postgres.NewRelayRepository(rc.db)
@@ -147,8 +153,8 @@ func (rc *RelayChecker) CheckRelay(ctx context.Context, relayURL string) error {
 
 	hc := domain.HealthCheck{
 		RelayURL:         rc.hc.RelayURL,
-		CreatedAt:        rc.hc.CreatedAt,
-		WebsocketSuccess: rc.hc.WebSocketSuccess,
+		CreatedAt:        &rc.hc.CreatedAt,
+		WebsocketSuccess: &rc.hc.WebSocketSuccess,
 		WebsocketError:   nullString(rc.hc.WebSocketError),
 		Nip11Success:     nullBool(rc.hc.NIP11Success),
 		Nip11Error:       nullString(rc.hc.NIP11Error),
@@ -186,16 +192,21 @@ func (rc *RelayChecker) CheckRelay(ctx context.Context, relayURL string) error {
 	}
 
 	// Add Supported NIPs to the Tags field.
-	ev.Tags = addSupportedNIPs(ev.Tags, supportedNIPs)
+	// Convert pq.Int64Array to []int
+	supportedNIPsInt := make([]int, len(supportedNIPs))
+	for i, nip := range supportedNIPs {
+		supportedNIPsInt[i] = int(nip)
+	}
+	ev.Tags = addSupportedNIPs(ev.Tags, supportedNIPsInt)
 
 	// Add payment and auth requirements, if any.
 	ev.Tags = addLimitations(ev.Tags, info.Limitation)
 
 	// Add "Topics" From NIP-11 "Informational Document" nip11.tags[].
-	ev.Tags = addTopics(ev.Tags, info.Tags)
+	ev.Tags = addTopics(ev.Tags, []string(info.Tags))
 
 	// Add Supported languages by the relay of interest.
-	ev.Tags = addLanguages(ev.Tags, info.LanguageTags)
+	ev.Tags = addLanguages(ev.Tags, []string(info.LanguageTags))
 
 	if err := ev.Sign(rc.privateKey); err != nil {
 		rc.logger.Error(

@@ -23,6 +23,8 @@ COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certifica
 COPY --from=build /usr/share/zoneinfo /usr/share/zoneinfo
 
 COPY --from=build /src/app/db/migrations/ /app/db/migrations/
+COPY --from=build /src/app/web/static/ /app/web/static/
+COPY --from=build /src/app/web/views/ /app/web/views/
 COPY --from=build /src/app/monitor /app/monitor
 
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
