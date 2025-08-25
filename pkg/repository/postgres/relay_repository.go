@@ -26,34 +26,37 @@ func (r *relayRepository) List(
 ) ([]domain.Relay, error) {
 	var relays []domain.Relay
 
-	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
-
-	// Build the subquery for latest health checks.
-	subquery := psql.Select(
-		"DISTINCT ON (relay_url) relay_url",
-		"created_at",
-		"websocket_success",
-		"nip11_success",
-		"rtt_open",
-	).From("health_checks").
-		OrderBy("relay_url", "created_at DESC")
-
-	subquerySQL, subqueryArgs, err := subquery.ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("failed to build subquery: %w", err)
-	}
-
-	// Select automatically scans the query results into a slice of structs.
-	query := sq.Select(
-		"r.*",
-		`h.created_at AS "health_check.created_at"`,
-		`h.websocket_success AS "health_check.websocket_success"`,
-		`h.nip11_success AS "health_check.nip11_success"`,
-		`h.rtt_open AS "health_check.rtt_open"`,
+	// Build the complete query with subquery inline
+	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).Select(
+		"r.url",
+		"r.name",
+		"r.description",
+		"r.pubkey",
+		"r.contact",
+		"r.icon",
+		"r.banner",
+		"r.privacy_policy",
+		"r.terms_of_service",
+		"r.software",
+		"r.version",
+		"r.supported_nips",
+		"r.relay_countries",
+		"r.language_tags",
+		"r.tags",
+		"r.posting_policy",
+		"r.created_at",
+		"r.updated_at",
+		`h.created_at AS "health_checks.created_at"`,
+		`h.websocket_success AS "health_checks.websocket_success"`,
+		`h.nip11_success AS "health_checks.nip11_success"`,
+		`h.rtt_open AS "health_checks.rtt_open"`,
 	).
 		From("relays AS r").
-		LeftJoin(fmt.Sprintf("(%s) h ON r.url = h.relay_url", subquerySQL)).
-		OrderBy("r.url")
+		LeftJoin(`(
+			SELECT DISTINCT ON (relay_url) relay_url, created_at, websocket_success, nip11_success, rtt_open
+			FROM health_checks
+			ORDER BY relay_url, created_at DESC
+		) h ON r.url = h.relay_url`)
 
 	if opts != nil {
 		if opts.Limit != nil {
@@ -68,16 +71,22 @@ func (r *relayRepository) List(
 		}
 	}
 
-	sql, mainArgs, err := query.ToSql()
-	if err != nil {
-		return nil, fmt.Errorf("failed to build main query: %w", err)
-	}
+	query = query.OrderBy("r.url")
 
-	// Combine arguments.
-	args := append(subqueryArgs, mainArgs...)
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
 
 	if err := r.db.SelectContext(ctx, &relays, sql, args...); err != nil {
 		return nil, fmt.Errorf("failed to get relays: %w", err)
+	}
+
+	// Post-process to set HealthCheck to nil when there's no actual health check data
+	for i := range relays {
+		if relays[i].HealthCheck != nil && relays[i].HealthCheck.CreatedAt == nil {
+			relays[i].HealthCheck = nil
+		}
 	}
 
 	return relays, nil
@@ -89,12 +98,29 @@ func (r *relayRepository) FindByURL(ctx context.Context, url string) (domain.Rel
 	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
 
 	query := psql.Select(
-		"r.*",
-		`h.created_at AS "health_check.created_at"`,
-		`h.websocket_success AS "health_check.websocket_success"`,
-		`h.nip11_success AS "health_check.nip11_success"`,
-		`h.rtt_open AS "health_check.rtt_open"`,
-	).From("relay AS r").
+		"r.url",
+		"r.name",
+		"r.description",
+		"r.pubkey",
+		"r.contact",
+		"r.icon",
+		"r.banner",
+		"r.privacy_policy",
+		"r.terms_of_service",
+		"r.software",
+		"r.version",
+		"r.supported_nips",
+		"r.relay_countries",
+		"r.language_tags",
+		"r.tags",
+		"r.posting_policy",
+		"r.created_at",
+		"r.updated_at",
+		`h.created_at AS "health_checks.created_at"`,
+		`h.websocket_success AS "health_checks.websocket_success"`,
+		`h.nip11_success AS "health_checks.nip11_success"`,
+		`h.rtt_open AS "health_checks.rtt_open"`,
+	).From("relays AS r").
 		LeftJoin("health_checks AS h ON r.url = h.relay_url").
 		Where(sq.Eq{"r.url": url}).
 		OrderBy("h.created_at DESC").
@@ -107,6 +133,11 @@ func (r *relayRepository) FindByURL(ctx context.Context, url string) (domain.Rel
 
 	if err := r.db.GetContext(ctx, &relay, sql, args...); err != nil {
 		return domain.Relay{}, fmt.Errorf("not found %w", err)
+	}
+
+	// Set HealthCheck to nil when there's no actual health check data
+	if relay.HealthCheck != nil && relay.HealthCheck.CreatedAt == nil {
+		relay.HealthCheck = nil
 	}
 
 	return relay, nil
