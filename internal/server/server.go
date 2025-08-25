@@ -12,26 +12,27 @@ import (
 	"time"
 
 	"github.com/danvergara/nostrich_watch_monitor/internal/config"
+	"github.com/danvergara/nostrich_watch_monitor/internal/handlers"
 )
 
 // NewServer constructor returns an http.Handler if possible, which can be a dedicated type for more complex situations.
 // It configures its own muxer and calls out to routes.go
-func NewServer(cfg *config.Config, fs fs.FS) http.Handler {
+func NewServer(cfg *config.Config, fs fs.FS, h handlers.RelaysHandler) http.Handler {
 	mux := http.NewServeMux()
-	addRoutes(mux, cfg, fs)
+	addRoutes(mux, cfg, fs, h)
 	var handler http.Handler = mux
 	handler = loggingMiddleware(cfg.Logger)(handler)
 	return handler
 }
 
 // Run the proxy server and will help the server to gracefully shut down.
-func Run(ctx context.Context, cfg *config.Config, fs fs.FS) error {
+func Run(ctx context.Context, cfg *config.Config, fs fs.FS, handler handlers.RelaysHandler) error {
 	// Creates a context and it's cancelled if there's Interrupt signal.
 	ctx, cancel := signal.NotifyContext(ctx, os.Interrupt)
 	defer cancel()
 
 	// Creates a new http.Server based on the Server struct.
-	srv := NewServer(cfg, fs)
+	srv := NewServer(cfg, fs, handler)
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Host, cfg.Port),
 		Handler: srv,

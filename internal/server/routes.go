@@ -5,14 +5,15 @@ import (
 	"net/http"
 
 	"github.com/danvergara/nostrich_watch_monitor/internal/config"
+	"github.com/danvergara/nostrich_watch_monitor/internal/handlers"
 )
 
-func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS) {
+func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS, handler handlers.RelaysHandler) {
 	mux.Handle(
 		"/static/",
 		http.StripPrefix("/static/", http.FileServer(http.FS(fs))),
 	)
 
-	mux.HandleFunc("/", dashboarIndexHandler(cfg))
-	mux.HandleFunc("/relay", relayDetailHandler(cfg))
+	mux.HandleFunc("/", handler.HandleRelayIndex)
+	mux.HandleFunc("/relay", handler.HandleRelayDetail)
 }

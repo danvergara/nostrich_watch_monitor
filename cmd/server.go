@@ -13,7 +13,11 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/danvergara/nostrich_watch_monitor/internal/config"
+	"github.com/danvergara/nostrich_watch_monitor/internal/handlers"
 	"github.com/danvergara/nostrich_watch_monitor/internal/server"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/database"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/repository/postgres"
+	"github.com/danvergara/nostrich_watch_monitor/pkg/services"
 	"github.com/danvergara/nostrich_watch_monitor/web"
 )
 
@@ -46,10 +50,27 @@ var serverCmd = &cobra.Command{
 			Logger: logger,
 		}
 
+		dbConfig := database.Config{
+			Host:     dbHost,
+			Port:     dbPort,
+			User:     dbUser,
+			Password: dbPass,
+			DBName:   dbName,
+		}
+
+		db, err := database.NewPostgresDB(dbConfig)
+		if err != nil {
+			return err
+		}
+
+		relayRepository := postgres.NewRelayRepository(db)
+		relayService := services.NewRelayService(relayRepository, logger)
+		relayHandler := handlers.NewRelaysHandler(relayService)
+
 		logger.Info(fmt.Sprintf("Server listening on port %s", port))
 
 		ctx := context.Background()
-		if err := server.Run(ctx, &cfg, staticFs); err != nil {
+		if err := server.Run(ctx, &cfg, staticFs, *relayHandler); err != nil {
 			logger.Error(fmt.Sprintf("Error running the server: %s", err))
 			os.Exit(1)
 		}

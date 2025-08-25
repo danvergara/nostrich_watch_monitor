@@ -95,5 +95,6 @@ func (rs *relayService) GetRelays(
 	}
 
 	rs.logger.Info("Successfully fetched relays", slog.Int("count", len(relays)))
+
 	return relays, nil
 }
