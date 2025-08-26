@@ -16,4 +16,5 @@ func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS, handler handler
 
 	mux.HandleFunc("/", handler.HandleRelayIndex)
 	mux.HandleFunc("/relay", handler.HandleRelayDetail)
+	mux.HandleFunc("/api/relays", handler.HandleRelayRows) // New endpoint
 }

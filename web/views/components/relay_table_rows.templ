@@ -1,0 +1,25 @@
+package components
+
+import (
+    "fmt"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
+)
+
+templ RelayTableRows(relays []presentation.RelayTableViewModel, nextOffset int) {
+    if len(relays) > 0 {
+        for _, relay := range relays {
+            @RelayTableRow(relay)
+        }
+        
+        <!-- Minimal height trigger element -->
+        <tr id="load-more-trigger" 
+            class="border-0"
+            hx-get={ fmt.Sprintf("/api/relays?offset=%d&limit=10", nextOffset) }
+            hx-trigger="intersect once"
+            hx-target="#relay-table-body"
+            hx-swap="beforeend"
+            hx-indicator="#loading-indicator">
+            <td colspan="6" class="p-1 h-1"></td>
+        </tr>
+    }
+}

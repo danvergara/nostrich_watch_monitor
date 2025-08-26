@@ -14,8 +14,14 @@ import (
 func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewModel {
 	vm := presentation.RelayDetailViewModel{
 		// Basic Info
-		URL:         relay.URL,
-		Name:        safeString(relay.Name),
+		URL: relay.URL,
+		Name: func() string {
+			if relay.Name != nil && *relay.Name != "" {
+				return *relay.Name
+			}
+			// Default to URL if name is empty
+			return relay.URL
+		}(),
 		Description: safeString(relay.Description),
 		Contact:     safeString(relay.Contact),
 		PubKey:      safeString(relay.PubKey),
@@ -150,8 +156,14 @@ func ToRelayTableViewModels(relays []domain.Relay) []presentation.RelayTableView
 // ToRelayTableViewModel converts a single domain.Relay to presentation.RelayTableViewModel
 func ToRelayTableViewModel(relay domain.Relay) presentation.RelayTableViewModel {
 	vm := presentation.RelayTableViewModel{
-		URL:            relay.URL,
-		Name:           safeString(relay.Name),
+		URL: relay.URL,
+		Name: func() string {
+			if relay.Name != nil && *relay.Name != "" {
+				return *relay.Name
+			}
+			// Default to URL if name is empty
+			return relay.URL
+		}(),
 		Classification: deriveClassification(relay.Tags),
 	}
 
