@@ -1,6 +1,9 @@
 package handlers
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/lib/pq"
 
 	"github.com/danvergara/nostrich_watch_monitor/pkg/domain"
@@ -40,7 +43,7 @@ func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewMode
 	if relay.HealthCheck != nil {
 		vm.IsOnline = safeBool(relay.HealthCheck.WebsocketSuccess)
 		if relay.HealthCheck.CreatedAt != nil {
-			vm.LastCheckTime = relay.HealthCheck.CreatedAt.Format("2006-01-02 15:04:05")
+			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
 		}
 		vm.CurrentRTTOpen = relay.HealthCheck.RTTOpen
 		vm.CurrentRTTRead = relay.HealthCheck.RTTRead
@@ -49,6 +52,39 @@ func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewMode
 	}
 
 	return vm
+}
+
+// FormatRelativeTime converts a time to a human-readable relative format
+func FormatRelativeTime(t time.Time) string {
+	now := time.Now()
+	diff := now.Sub(t)
+
+	switch {
+	case diff < time.Minute:
+		return "just now"
+	case diff < time.Hour:
+		minutes := int(diff.Minutes())
+		if minutes == 1 {
+			return "1 minute ago"
+		}
+		return fmt.Sprintf("%d minutes ago", minutes)
+	case diff < 24*time.Hour:
+		hours := int(diff.Hours())
+		if hours == 1 {
+			return "1 hour ago"
+		}
+		return fmt.Sprintf("%d hours ago", hours)
+	case diff < 7*24*time.Hour:
+		days := int(diff.Hours() / 24)
+		if days == 1 {
+			return "1 day ago"
+		}
+		return fmt.Sprintf("%d days ago", days)
+	case diff < 365*24*time.Hour:
+		return t.Format("Jan 2")
+	default:
+		return t.Format("Jan 2, 2006")
+	}
 }
 
 // safeString safely converts a nullable string pointer to a string
@@ -128,7 +164,7 @@ func ToRelayTableViewModel(relay domain.Relay) presentation.RelayTableViewModel 
 		vm.RTTNIP11 = relay.HealthCheck.RTTNIP11
 
 		if relay.HealthCheck.CreatedAt != nil {
-			vm.LastCheckTime = relay.HealthCheck.CreatedAt.Format("2006-01-02 15:04:05")
+			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
 		}
 	}
 

@@ -50,10 +50,11 @@ func (r *relayRepository) List(
 		`h.websocket_success AS "health_checks.websocket_success"`,
 		`h.nip11_success AS "health_checks.nip11_success"`,
 		`h.rtt_open AS "health_checks.rtt_open"`,
+		`h.rtt_nip11 AS "health_checks.rtt_nip11"`,
 	).
 		From("relays AS r").
 		LeftJoin(`(
-			SELECT DISTINCT ON (relay_url) relay_url, created_at, websocket_success, nip11_success, rtt_open
+			SELECT DISTINCT ON (relay_url) relay_url, created_at, websocket_success, nip11_success, rtt_open, rtt_nip11
 			FROM health_checks
 			ORDER BY relay_url, created_at DESC
 		) h ON r.url = h.relay_url`)
@@ -120,6 +121,7 @@ func (r *relayRepository) FindByURL(ctx context.Context, url string) (domain.Rel
 		`h.websocket_success AS "health_checks.websocket_success"`,
 		`h.nip11_success AS "health_checks.nip11_success"`,
 		`h.rtt_open AS "health_checks.rtt_open"`,
+		`h.rtt_nip11 AS "health_checks.rtt_nip11"`,
 	).From("relays AS r").
 		LeftJoin("health_checks AS h ON r.url = h.relay_url").
 		Where(sq.Eq{"r.url": url}).
