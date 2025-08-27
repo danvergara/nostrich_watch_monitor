@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	sq "github.com/Masterminds/squirrel"
 	"github.com/jmoiron/sqlx"
 
 	"github.com/danvergara/nostrich_watch_monitor/pkg/domain"
@@ -19,16 +20,129 @@ func NewRelayRepository(db *sqlx.DB) repository.RelayRepository {
 }
 
 // List returns a list of relays of interest from the databased to be monitored.
-func (r *relayRepository) List(ctx context.Context) ([]domain.Relay, error) {
-	var relays = []domain.Relay{}
+func (r *relayRepository) List(
+	ctx context.Context,
+	opts *repository.ListOption,
+) ([]domain.Relay, error) {
+	var relays []domain.Relay
 
-	// Select automatically scans the query results into a slice of structs.
-	err := r.db.SelectContext(ctx, &relays, "SELECT url FROM relays")
+	// Build the complete query with subquery inline
+	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).Select(
+		"r.url",
+		"r.name",
+		"r.description",
+		"r.pubkey",
+		"r.contact",
+		"r.icon",
+		"r.banner",
+		"r.privacy_policy",
+		"r.terms_of_service",
+		"r.software",
+		"r.version",
+		"r.supported_nips",
+		"r.relay_countries",
+		"r.language_tags",
+		"r.tags",
+		"r.posting_policy",
+		"r.created_at",
+		"r.updated_at",
+		`h.created_at AS "health_checks.created_at"`,
+		`h.websocket_success AS "health_checks.websocket_success"`,
+		`h.nip11_success AS "health_checks.nip11_success"`,
+		`h.rtt_open AS "health_checks.rtt_open"`,
+		`h.rtt_nip11 AS "health_checks.rtt_nip11"`,
+	).
+		From("relays AS r").
+		LeftJoin(`(
+			SELECT DISTINCT ON (relay_url) relay_url, created_at, websocket_success, nip11_success, rtt_open, rtt_nip11
+			FROM health_checks
+			ORDER BY relay_url, created_at DESC
+		) h ON r.url = h.relay_url`)
+
+	if opts != nil {
+		if opts.Limit != nil {
+			query = query.Limit(uint64(*opts.Limit))
+		}
+		if opts.Offset != nil {
+			query = query.Offset(uint64(*opts.Offset))
+		}
+
+		if len(opts.URLs) > 0 {
+			query = query.Where(sq.Eq{"r.url": opts.URLs})
+		}
+	}
+
+	query = query.OrderBy("r.url")
+
+	sql, args, err := query.ToSql()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	if err := r.db.SelectContext(ctx, &relays, sql, args...); err != nil {
+		return nil, fmt.Errorf("failed to get relays: %w", err)
+	}
+
+	// Post-process to set HealthCheck to nil when there's no actual health check data
+	for i := range relays {
+		if relays[i].HealthCheck != nil && relays[i].HealthCheck.CreatedAt == nil {
+			relays[i].HealthCheck = nil
+		}
 	}
 
 	return relays, nil
+}
+
+func (r *relayRepository) FindByURL(ctx context.Context, url string) (domain.Relay, error) {
+	relay := domain.Relay{}
+
+	psql := sq.StatementBuilder.PlaceholderFormat(sq.Dollar)
+
+	query := psql.Select(
+		"r.url",
+		"r.name",
+		"r.description",
+		"r.pubkey",
+		"r.contact",
+		"r.icon",
+		"r.banner",
+		"r.privacy_policy",
+		"r.terms_of_service",
+		"r.software",
+		"r.version",
+		"r.supported_nips",
+		"r.relay_countries",
+		"r.language_tags",
+		"r.tags",
+		"r.posting_policy",
+		"r.created_at",
+		"r.updated_at",
+		`h.created_at AS "health_checks.created_at"`,
+		`h.websocket_success AS "health_checks.websocket_success"`,
+		`h.nip11_success AS "health_checks.nip11_success"`,
+		`h.rtt_open AS "health_checks.rtt_open"`,
+		`h.rtt_nip11 AS "health_checks.rtt_nip11"`,
+	).From("relays AS r").
+		LeftJoin("health_checks AS h ON r.url = h.relay_url").
+		Where(sq.Eq{"r.url": url}).
+		OrderBy("h.created_at DESC").
+		Limit(1)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return domain.Relay{}, fmt.Errorf("failed to build query: %w", err)
+	}
+
+	if err := r.db.GetContext(ctx, &relay, sql, args...); err != nil {
+		return domain.Relay{}, fmt.Errorf("not found %w", err)
+	}
+
+	// Set HealthCheck to nil when there's no actual health check data
+	if relay.HealthCheck != nil && relay.HealthCheck.CreatedAt == nil {
+		relay.HealthCheck = nil
+	}
+
+	return relay, nil
 }
 
 func (r *relayRepository) Update(ctx context.Context, relayInfo domain.Relay) error {

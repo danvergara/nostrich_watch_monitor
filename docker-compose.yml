@@ -108,6 +108,25 @@ services:
     networks:
       - monitor
 
+  dashboard:
+    build:
+      context: .
+    depends_on:
+      seeder:
+        condition: service_completed_successfully
+    ports:
+      - "8000:8000"
+    environment:
+      - NOSTRICH_WATCH_DB_HOST=postgres
+      - NOSTRICH_WATCH_DB_PORT=5432
+      - NOSTRICH_WATCH_DB_USER=postgres
+      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_NAME=monitor
+      - NOSTRICH_WATCH_REDIS_HOST=redis:6379
+    entrypoint: ["/app/monitor", "server"]
+    networks:
+      - monitor
+
   asynqmon:
     image: hibiken/asynqmon:latest
     ports:

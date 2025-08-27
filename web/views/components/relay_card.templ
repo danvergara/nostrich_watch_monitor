@@ -1,0 +1,117 @@
+package components
+
+import (
+    "fmt"
+    "github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
+)
+
+templ RelayCard(relay presentation.RelayTableViewModel, isFeatured bool) {
+    <div class="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-gray-600 transition-all duration-200 hover:shadow-lg">
+        <!-- Header with Status Indicator -->
+        <div class="flex items-start justify-between mb-4">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1">
+                    <!-- Online/Offline Status Dot -->
+                    <div class={
+                        "w-2 h-2 rounded-full ",
+                        templ.KV("bg-green-400", relay.IsOnline),
+                        templ.KV("bg-red-400", !relay.IsOnline)
+                    }></div>
+                    
+                    <h4 class="text-lg font-semibold text-white truncate">
+                        {relay.Name}
+                    </h4>
+                    if isFeatured {
+                        <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    }
+                </div>
+                <p class="text-sm text-gray-400 truncate">{relay.URL}</p>
+            </div>
+            
+            @ClassificationBadge(relay.Classification)
+        </div>
+
+        <!-- Description - Note: Description not available in RelayTableViewModel -->
+        <!-- <p class="text-sm text-gray-300 mb-4 line-clamp-2">{relay.Description}</p> -->
+
+        <!-- Metrics -->
+        @RelayMetrics(relay)
+
+        <!-- Footer with Check Status -->
+        <div class="flex items-center justify-between pt-4 border-t border-gray-700">
+            <div class="flex items-center gap-2">
+                <span class={
+                    "text-xs font-medium ",
+                    templ.KV("text-green-400", relay.IsOnline),
+                    templ.KV("text-red-400", !relay.IsOnline)
+                }>
+                    if relay.IsOnline {
+                        Online
+                    } else {
+                        Offline
+                    }
+                </span>
+                <span class="text-xs text-gray-500">• Checked {relay.LastCheckTime}</span>
+            </div>
+            <button class="text-sm text-purple-400 hover:text-purple-300 font-medium">
+                View Details →
+            </button>
+        </div>
+    </div>
+}
+
+templ ClassificationBadge(classification string) {
+    <span class={
+        "px-2 py-1 text-xs font-medium rounded-full ",
+        templ.KV("bg-green-500/10 text-green-400", classification == "Public"),
+        templ.KV("bg-blue-500/10 text-blue-400", classification == "Paid"),
+        templ.KV("bg-purple-500/10 text-purple-400", classification == "WoT"),
+        templ.KV("bg-gray-500/10 text-gray-400", classification == "Private")
+    }>
+        {classification}
+    </span>
+}
+
+templ RelayMetrics(relay presentation.RelayTableViewModel) {
+    <div class="space-y-3 mb-4">
+
+        
+        <!-- Connection Performance -->
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-400">Connection</span>
+            if relay.RTTOpen != nil {
+                <span class={
+                    "text-sm font-medium ",
+                    templ.KV("text-green-400", *relay.RTTOpen < 100),
+                    templ.KV("text-yellow-400", *relay.RTTOpen >= 100 && *relay.RTTOpen < 300),
+                    templ.KV("text-red-400", *relay.RTTOpen >= 300)
+                }>{fmt.Sprintf("%dms", *relay.RTTOpen)}</span>
+            } else {
+                <span class="text-sm text-gray-500">N/A</span>
+            }
+        </div>
+        
+        <!-- NIP-11 Support -->
+        <div class="flex items-center justify-between">
+            <span class="text-sm text-gray-400">NIP-11</span>
+            if relay.NIP11Success != nil && *relay.NIP11Success {
+                <div class="flex items-center gap-1">
+                    <svg class="w-4 h-4 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                    if relay.RTTNIP11 != nil {
+                        <span class="text-sm text-green-400">{fmt.Sprintf("%dms", *relay.RTTNIP11)}</span>
+                    }
+                </div>
+            } else {
+                <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            }
+        </div>
+    </div>
+}
+
+
