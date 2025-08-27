@@ -117,8 +117,8 @@ func (suite *RelayRepositoryTestSuite) SetupSuite() {
 	suite.ctx = context.Background()
 
 	// Start PostgreSQL container
-	pgContainer, err := postgres.RunContainer(suite.ctx,
-		testcontainers.WithImage("postgres:15-alpine"),
+	pgContainer, err := postgres.Run(suite.ctx,
+		"postgres:15-alpine",
 		postgres.WithDatabase("testdb"),
 		postgres.WithUsername("testuser"),
 		postgres.WithPassword("testpass"),
@@ -284,12 +284,12 @@ func (suite *RelayRepositoryTestSuite) TestList_WithHealthChecks() {
 
 	// Check first relay has health check
 	assert.NotNil(suite.T(), relays[0].HealthCheck)
-	assert.True(suite.T(), *relays[0].HealthCheck.WebsocketSuccess)
-	assert.Equal(suite.T(), 100, *relays[0].HealthCheck.RTTOpen)
+	assert.True(suite.T(), *relays[0].WebsocketSuccess)
+	assert.Equal(suite.T(), 100, *relays[0].RTTOpen)
 
 	// Check second relay has health check
 	assert.NotNil(suite.T(), relays[1].HealthCheck)
-	assert.False(suite.T(), *relays[1].HealthCheck.WebsocketSuccess)
+	assert.False(suite.T(), *relays[1].WebsocketSuccess)
 }
 
 func (suite *RelayRepositoryTestSuite) TestList_LatestHealthCheckOnly() {
@@ -308,7 +308,7 @@ func (suite *RelayRepositoryTestSuite) TestList_LatestHealthCheckOnly() {
 
 	// Should have the latest health check (success = true)
 	assert.NotNil(suite.T(), relays[0].HealthCheck)
-	assert.True(suite.T(), *relays[0].HealthCheck.WebsocketSuccess)
+	assert.True(suite.T(), *relays[0].WebsocketSuccess)
 }
 
 func (suite *RelayRepositoryTestSuite) TestList_WithPagination() {
@@ -384,7 +384,7 @@ func (suite *RelayRepositoryTestSuite) TestFindByURL_ExistingRelay() {
 	assert.Equal(suite.T(), "wss://test.example.com", relay.URL)
 	assert.Equal(suite.T(), "Test Relay", *relay.Name)
 	assert.NotNil(suite.T(), relay.HealthCheck)
-	assert.True(suite.T(), *relay.HealthCheck.WebsocketSuccess)
+	assert.True(suite.T(), *relay.WebsocketSuccess)
 }
 
 func (suite *RelayRepositoryTestSuite) TestFindByURL_NonExistentRelay() {
@@ -420,7 +420,7 @@ func (suite *RelayRepositoryTestSuite) TestFindByURL_LatestHealthCheck() {
 
 	require.NoError(suite.T(), err)
 	assert.NotNil(suite.T(), relay.HealthCheck)
-	assert.True(suite.T(), *relay.HealthCheck.WebsocketSuccess) // Should get latest
+	assert.True(suite.T(), *relay.WebsocketSuccess) // Should get latest
 }
 
 // Run the test suite

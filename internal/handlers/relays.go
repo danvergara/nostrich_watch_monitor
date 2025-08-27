@@ -32,39 +32,43 @@ func (rh *RelaysHandler) HandleRelayIndex(w http.ResponseWriter, r *http.Request
 		// Show dashboard with empty table - template will show error state via EmptyState component
 		if err := views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w); err != nil {
 			// If even empty dashboard fails, try once more (template rendering rarely fails twice)
-			views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
+			_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
 		}
 		return
 	}
 
 	if err := views.Dashboard(ToRelayTableViewModels(relays)).Render(r.Context(), w); err != nil {
 		// Same approach - show empty dashboard instead of breaking the page
-		views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
+		_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
 	}
 }
 
 func (rh *RelaysHandler) HandleRelayDetail(w http.ResponseWriter, r *http.Request) {
 	relayURL := r.URL.Query().Get("url")
 	if relayURL == "" {
-		http.Error(w, "URL parameter required", http.StatusBadRequest)
+		errorRelay := createErrorRelayViewModel(
+			"wss://empty-url.io",
+			"URL parameter required",
+		)
+		_ = views.RelayDetail(errorRelay).Render(r.Context(), w)
 		return
 	}
 
 	relay, err := rh.service.GetRelayByURL(r.Context(), relayURL)
 	if err != nil {
 		// Create error state relay view instead of breaking the page
-		errorRelay := createErrorRelayViewModel(relayURL, "Relay not found or temporarily unavailable")
-		if err := views.RelayDetail(errorRelay).Render(r.Context(), w); err != nil {
-			// Final fallback: try once more
-			views.RelayDetail(errorRelay).Render(r.Context(), w)
-		}
+		errorRelay := createErrorRelayViewModel(
+			relayURL,
+			"Relay not found or temporarily unavailable",
+		)
+		_ = views.RelayDetail(errorRelay).Render(r.Context(), w)
 		return
 	}
 
 	if err := views.RelayDetail(ToRelayDetailViewModel(relay)).Render(r.Context(), w); err != nil {
 		// Same approach - show error state instead of breaking
 		errorRelay := createErrorRelayViewModel(relayURL, "Error loading relay details")
-		views.RelayDetail(errorRelay).Render(r.Context(), w)
+		_ = views.RelayDetail(errorRelay).Render(r.Context(), w)
 	}
 }
 

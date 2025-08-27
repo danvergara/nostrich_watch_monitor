@@ -47,14 +47,14 @@ func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewMode
 
 	// Current Status (from embedded health check)
 	if relay.HealthCheck != nil {
-		vm.IsOnline = safeBool(relay.HealthCheck.WebsocketSuccess)
+		vm.IsOnline = safeBool(relay.WebsocketSuccess)
 		if relay.HealthCheck.CreatedAt != nil {
 			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
 		}
-		vm.CurrentRTTOpen = relay.HealthCheck.RTTOpen
-		vm.CurrentRTTRead = relay.HealthCheck.RTTRead
-		vm.CurrentRTTWrite = relay.HealthCheck.RTTWrite
-		vm.CurrentRTTNIP11 = relay.HealthCheck.RTTNIP11
+		vm.CurrentRTTOpen = relay.RTTOpen
+		vm.CurrentRTTRead = relay.RTTRead
+		vm.CurrentRTTWrite = relay.RTTWrite
+		vm.CurrentRTTNIP11 = relay.RTTNIP11
 	}
 
 	return vm
@@ -169,11 +169,11 @@ func ToRelayTableViewModel(relay domain.Relay) presentation.RelayTableViewModel 
 
 	// Current Status (from embedded health check)
 	if relay.HealthCheck != nil {
-		vm.IsOnline = safeBool(relay.HealthCheck.WebsocketSuccess)
-		vm.WebsocketSuccess = safeBool(relay.HealthCheck.WebsocketSuccess)
-		vm.NIP11Success = relay.HealthCheck.Nip11Success
-		vm.RTTOpen = relay.HealthCheck.RTTOpen
-		vm.RTTNIP11 = relay.HealthCheck.RTTNIP11
+		vm.IsOnline = safeBool(relay.WebsocketSuccess)
+		vm.WebsocketSuccess = safeBool(relay.WebsocketSuccess)
+		vm.NIP11Success = relay.Nip11Success
+		vm.RTTOpen = relay.RTTOpen
+		vm.RTTNIP11 = relay.RTTNIP11
 
 		if relay.HealthCheck.CreatedAt != nil {
 			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)

@@ -8,7 +8,7 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/internal/handlers"
 )
 
-func addRoutes(mux *http.ServeMux, cfg *config.Config, fs fs.FS, handler handlers.RelaysHandler) {
+func addRoutes(mux *http.ServeMux, _ *config.Config, fs fs.FS, handler handlers.RelaysHandler) {
 	mux.Handle(
 		"/static/",
 		http.StripPrefix("/static/", http.FileServer(http.FS(fs))),
