@@ -61,6 +61,16 @@ setup-config:
 start-services:
 	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
 
+.PHONY: stop-services
+## stop-services: stop all services
+stop-services:
+	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+
+.PHONY: list-services
+## list-services: list all services
+list-services:
+	systemctl --user list-unit-files | grep nostrich
+	
 .PHONY: enable-linger
 ## enable-linger: enable the linger for our user to start the containers without the user being logged in
 enable-linger:
