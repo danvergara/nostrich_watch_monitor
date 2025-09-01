@@ -3,9 +3,9 @@ services:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-monitor}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-password}
+      POSTGRES_DB: monitor
+      POSTGRES_USER: monitor
+      POSTGRES_PASSWORD: ${NOSTRICH_WATCH_DB_PASSWORD}
       # Performance tuning
       POSTGRES_INITDB_ARGS: "--data-checksums"
     ports:
@@ -47,8 +47,8 @@ services:
     environment:
       - NOSTRICH_WATCH_DB_HOST=postgres
       - NOSTRICH_WATCH_DB_PORT=5432
-      - NOSTRICH_WATCH_DB_USER=postgres
-      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_USER=monitor
+      - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
     entrypoint: ["/app/monitor", "migrate", "up"]
     networks:
@@ -65,8 +65,8 @@ services:
     environment:
       - NOSTRICH_WATCH_DB_HOST=postgres
       - NOSTRICH_WATCH_DB_PORT=5432
-      - NOSTRICH_WATCH_DB_USER=postgres
-      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_USER=monitor
+      - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
     entrypoint: ["/app/monitor", "seeds"]
     networks:
@@ -81,8 +81,8 @@ services:
     environment:
       - NOSTRICH_WATCH_DB_HOST=postgres
       - NOSTRICH_WATCH_DB_PORT=5432
-      - NOSTRICH_WATCH_DB_USER=postgres
-      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_USER=monitor
+      - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
       - NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME=second
@@ -102,8 +102,8 @@ services:
     environment:
       - NOSTRICH_WATCH_DB_HOST=postgres
       - NOSTRICH_WATCH_DB_PORT=5432
-      - NOSTRICH_WATCH_DB_USER=postgres
-      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_USER=monitor
+      - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
       - NOSTRICH_WATCH_MONITOR_PRIVATE_KEY=${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}
@@ -123,8 +123,8 @@ services:
     environment:
       - NOSTRICH_WATCH_DB_HOST=postgres
       - NOSTRICH_WATCH_DB_PORT=5432
-      - NOSTRICH_WATCH_DB_USER=postgres
-      - NOSTRICH_WATCH_DB_PASSWORD=password
+      - NOSTRICH_WATCH_DB_USER=monitor
+      - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
     entrypoint: ["/app/monitor", "server"]

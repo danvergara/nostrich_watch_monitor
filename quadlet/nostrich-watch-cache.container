@@ -1,0 +1,17 @@
+[Container]
+Exec=redis-server --appendonly yes
+HealthCmd=["redis-cli","ping"]
+HealthInterval=30s
+HealthRetries=3
+HealthStartPeriod=30s
+HealthTimeout=10s
+Image=docker.io/redis:8-alpine
+Network=monitor.network
+PublishPort=6379:6379
+Volume=redis_data.volume:/data
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

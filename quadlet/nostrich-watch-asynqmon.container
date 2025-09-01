@@ -1,0 +1,12 @@
+[Unit]
+Requires=nostrich-watch-cache.service
+After=nostrich-watch-cache.service
+
+[Container]
+Environment=REDIS_ADDR=nostrich-watch-cache:6379 PORT=8080
+Image=docker.io/hibiken/asynqmon:latest
+Network=monitor.network
+PublishPort=8080:8080
+
+[Install]
+WantedBy=default.target
