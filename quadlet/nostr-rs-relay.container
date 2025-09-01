@@ -1,0 +1,13 @@
+[Container]
+Environment=RUST_LOG=info
+Image=docker.io/scsibug/nostr-rs-relay:latest
+Network=monitor.network
+PublishPort=7777:7777
+Volume=nostr_data.volume:/usr/src/app/db
+Volume=%h/.config/nostrich-watch/config.toml:/usr/src/app/config.toml
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

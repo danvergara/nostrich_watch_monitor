@@ -1,0 +1,13 @@
+[Unit]
+Requires=nostrich-watch-db.service nostrich-watch-cache.service
+After=nostrich-watch-db.service nostrich-watch-cache.service
+
+[Container]
+Entrypoint=["/app/monitor","scheduler"]
+Environment=NOSTRICH_WATCH_DB_HOST=systemd-nostrich-watch-db NOSTRICH_WATCH_DB_PORT=5432 NOSTRICH_WATCH_DB_USER=monitor NOSTRICH_WATCH_DB_NAME=monitor NOSTRICH_WATCH_REDIS_HOST=systemd-nostrich-watch-cache:6379
+Image=ghcr.io/danvergara/nostrich-watch-monitor:0.2.0
+Secret=nostrich-watch-db-password,type=env,target=NOSTRICH_WATCH_DB_PASSWORD
+Network=monitor.network
+
+[Install]
+WantedBy=default.target
