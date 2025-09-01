@@ -10,6 +10,8 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -22,8 +24,16 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/pkg/task"
 )
 
+var (
+	healthCheckUnitTime      string
+	healthCheckTimeInternval string
+	announcementUnitTime     string
+	announcementTimeInterval string
+)
+
 // schedulerCmd represents the scheduler command
 var schedulerCmd = &cobra.Command{
+
 	Use:   "scheduler",
 	Short: "scheduler command automatically enqueues tasks to monitor relays.",
 	RunE: func(cmd *cobra.Command, args []string) error {
@@ -84,10 +94,18 @@ var schedulerCmd = &cobra.Command{
 		// Create a job for each relay.
 		jobs := make([]gocron.Job, 0, len(relays))
 
+		healthCheckTimeInternvalInt, err := strconv.Atoi(healthCheckTimeInternval)
+		if err != nil {
+			logger.Error(err.Error())
+			return err
+		}
+
 		for _, r := range relays {
 			// Create a job for this specific relay
 			job, err := s.NewJob(
-				gocron.DurationJob(1*time.Hour),
+				gocron.DurationJob(
+					determineGoCronDuration(healthCheckUnitTime, healthCheckTimeInternvalInt),
+				),
 				gocron.NewTask(func(relayURL string) error {
 					// Create a asynq task passing the type and the payload of the task.
 					relayTask, err := task.NewRelayHealthCheckTask(relayURL)
@@ -120,8 +138,16 @@ var schedulerCmd = &cobra.Command{
 			jobs = append(jobs, job)
 		}
 
+		announcementTimeIntervalInt, err := strconv.Atoi(announcementTimeInterval)
+		if err != nil {
+			logger.Error(err.Error())
+			return err
+		}
+
 		jobAnnouncement, err := s.NewJob(
-			gocron.DurationJob(7*24*time.Hour),
+			gocron.DurationJob(
+				determineGoCronDuration(announcementUnitTime, announcementTimeIntervalInt),
+			),
 			gocron.NewTask(func(frequency string) error {
 				// Create a asynq task passing the type and the payload of the task.
 				relayTask, err := task.NewTaskMonitorAnnouncement(frequency)
@@ -182,5 +208,23 @@ var schedulerCmd = &cobra.Command{
 }
 
 func init() {
+	healthCheckUnitTime = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME")
+	healthCheckTimeInternval = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_TIME_INTERVAL")
+	announcementUnitTime = os.Getenv("NOSTRICH_WATCH_MONITOR_ANNOUNCEMENT_UNIT_TIME")
+	announcementTimeInterval = os.Getenv("NOSTRICH_WATCH_MONITOR_ANNOUNCEMENT_TIME_INTERVAL")
+
 	rootCmd.AddCommand(schedulerCmd)
+}
+
+func determineGoCronDuration(unitTime string, timeInterval int) time.Duration {
+	switch strings.ToLower(unitTime) {
+	case "hour":
+		return time.Duration(timeInterval) * time.Hour
+	case "minute":
+		return time.Duration(timeInterval) * time.Minute
+	case "second":
+		return time.Duration(timeInterval) * time.Second
+	default:
+		return 1 * time.Hour
+	}
 }
