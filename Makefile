@@ -32,6 +32,40 @@ css:
 build-css:
 	tailwindcss -i ./web/static/css/input.css -o ./web/static/css/styles.css --minify
 
+.PHONY: create-secrets
+## create-secrets: create necessary podman secrets
+create-secrets:
+	@echo -n "${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}" | podman secret create nostrich-watch-monitor-private-key -
+	@echo -n "${NOSTRICH_WATCH_DB_PASSWORD}" | podman secret create nostrich-watch-db-password -
+
+.PHONY: setup-services
+## setup-services: copy the content of the quadlet directory to ~/.config/containers/systemd/nostrich-watch/ and reload the system files
+setup-services:
+	mkdir -p ~/.config/containers/systemd/
+	cp quadlet/* ~/.config/containers/systemd/
+	systemctl --user daemon-reload
+
+.PHONY: setup-nostrich-watch-db
+## setup-nostrich-watch-db: setup the database by enabling and starting the database service. 
+setup-nostrich-watch-db:
+	systemctl --user start nostrich-watch-db  
+
+.PHONY: setup-config
+## setup-config: copy config file to the right location
+setup-config:
+	mkdir -p ~/.config/nostrich-watch
+	cp config.toml ~/.config/nostrich-watch/
+
+.PHONY: start-services
+## start-services: start all services after migrations
+start-services:
+	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+
+.PHONY: enable-linger
+## enable-linger: enable the linger for our user to start the containers without the user being logged in
+enable-linger:
+	loginctl enable-linger "${USER}"
+
 .PHONY: help
 ## help: Prints this help message
 help:
