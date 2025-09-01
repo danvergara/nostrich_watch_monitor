@@ -17,7 +17,7 @@ This guide walks you through deploying Nostrich Watch Monitor using Podman Quadl
 ```bash
 git clone https://github.com/danvergara/nostrich_watch_monitor.git
 cd nostrich_watch_monitor
-git checkout v0.2.0
+git checkout v0.3.0
 ```
 
 ### 2. Enable User Linger
