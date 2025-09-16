@@ -10,7 +10,6 @@ import (
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	_ "github.com/lib/pq"
 	"github.com/nbd-wtf/go-nostr/nip11"
 	"github.com/spf13/cobra"
 
