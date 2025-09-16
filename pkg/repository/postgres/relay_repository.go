@@ -161,8 +161,7 @@ func (r *relayRepository) Update(ctx context.Context, relayInfo domain.Relay) er
             terms_of_service = :terms_of_service,
             posting_policy = :posting_policy,
             updated_at = CURRENT_TIMESTAMP
-        WHERE url = :url
-    `
+        WHERE url = :url`
 
 	if _, err := r.db.NamedExec(query, relayInfo); err != nil {
 		return fmt.Errorf("failed to update relay info: %w", err)
@@ -171,16 +170,76 @@ func (r *relayRepository) Update(ctx context.Context, relayInfo domain.Relay) er
 	return nil
 }
 
+func (r *relayRepository) Create(ctx context.Context, relayInfo domain.Relay) error {
+	query := `
+		INSERT INTO relays (
+			url,
+			name,
+			description,
+			pubkey,
+			contact,
+			supported_nips,
+			software,
+			version,
+			icon,
+			banner,
+			privacy_policy,
+			terms_of_service,
+			posting_policy,
+			updated_at
+		)
+		VALUES (
+			:url,
+			:name,
+			:description,
+			:pubkey,
+			:contact,
+			:supported_nips,
+			:software,
+			:version,
+			:icon,
+			:banner,
+			:privacy_policy,
+			:terms_of_service,
+			:posting_policy,
+			:updated_at
+		)
+		ON CONFLICT (url) DO NOTHING`
+
+	if _, err := r.db.NamedExecContext(ctx, query, relayInfo); err != nil {
+		return fmt.Errorf("failed to insert relay info: %w", err)
+	}
+
+	return nil
+}
+
 func (r *relayRepository) SaveHealthCheck(ctx context.Context, status domain.HealthCheck) error {
 	query := `
         INSERT INTO health_checks (
-            relay_url, created_at, websocket_success, websocket_error,
-            nip11_success, nip11_error, rtt_open, rtt_read, rtt_write, rtt_nip11
-        ) VALUES (
-					:relay_url, :created_at, :websocket_success, :websocket_error,
-        	:nip11_success, :nip11_error, :rtt_open, :rtt_read, :rtt_write, :rtt_nip11
-				)
-    `
+          relay_url,
+					created_at,
+					websocket_success,
+					websocket_error,
+          nip11_success,
+					nip11_error,
+					rtt_open,
+					rtt_read,
+					rtt_write,
+					rtt_nip11
+        )
+				VALUES (
+					:relay_url,
+					:created_at,
+					:websocket_success,
+					:websocket_error,
+        	:nip11_success,
+					:nip11_error,
+					:rtt_open,
+					:rtt_read,
+					:rtt_write,
+					:rtt_nip11
+				)`
+
 	_, err := r.db.NamedExec(query, status)
 	if err != nil {
 		return fmt.Errorf("failed to save health check: %w", err)
