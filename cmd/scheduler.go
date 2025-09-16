@@ -148,26 +148,35 @@ var schedulerCmd = &cobra.Command{
 			gocron.DurationJob(
 				determineGoCronDuration(announcementUnitTime, announcementTimeIntervalInt),
 			),
-			gocron.NewTask(func(frequency string) error {
-				// Create a asynq task passing the type and the payload of the task.
-				relayTask, err := task.NewTaskMonitorAnnouncement(frequency)
-				if err != nil {
-					logger.Error(err.Error())
-					return err
-				}
+			gocron.NewTask(
+				func(frequency string) error {
+					// Create a asynq task passing the type and the payload of the task.
+					relayTask, err := task.NewTaskMonitorAnnouncement(frequency)
+					if err != nil {
+						logger.Error(err.Error())
+						return err
+					}
 
-				// Process the task immediately.
-				info, err := client.Enqueue(relayTask)
-				if err != nil {
-					logger.Error(fmt.Sprintf("error processing a task: %s", err))
-					return err
-				}
+					// Process the task immediately.
+					info, err := client.Enqueue(relayTask)
+					if err != nil {
+						logger.Error(fmt.Sprintf("error processing a task: %s", err))
+						return err
+					}
 
-				logger.Info(fmt.Sprintf("[*] Successfully enqueued the task: %+v", info))
+					logger.Info(fmt.Sprintf("[*] Successfully enqueued the task: %+v", info))
 
-				return nil
-
-			}, "604800"),
+					return nil
+				},
+				// Calculates the frequency in seconds at which the monitor publishes events.
+				fmt.Sprintf(
+					"%.0f",
+					determineGoCronDuration(
+						healthCheckUnitTime,
+						healthCheckTimeInternvalInt,
+					).Seconds(),
+				),
+			),
 			gocron.WithContext(ctx),
 			gocron.WithName("Monitor Announcement"),
 			gocron.WithTags("monitoring", "announcement"),
