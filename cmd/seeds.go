@@ -4,9 +4,12 @@ Copyright © 2025 Daniel Vergara daniel.omar.vergara@gmail.com
 package cmd
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
@@ -18,13 +21,31 @@ import (
 )
 
 func seedRelays(db *sqlx.DB) error {
-	relayURLs := []string{
-		"wss://relay.damus.io",
-		"wss://relay.nostr.band",
-		"wss://nostr.land",
-		"wss://nostr.mom",
-		"wss://nos.lol",
+	file, err := os.Open("relays.txt")
+	if err != nil {
+		return fmt.Errorf("failed to open relays.txt: %w", err)
 	}
+		defer func() {
+		err := file.Close()
+		if err != nil {
+			log.Printf("error closing file relays.txt: %v", err)
+		}
+	}()
+
+	var relayURLs []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line != "" {
+			relayURLs = append(relayURLs, line)
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return fmt.Errorf("failed to read relays.txt: %w", err)
+	}
+
+	log.Printf("Found %d relays in relays.txt to seed", len(relayURLs))
 
 	ctx := context.Background()
 

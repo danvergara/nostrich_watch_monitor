@@ -26,6 +26,7 @@ COPY --from=build /src/app/db/migrations/ /app/db/migrations/
 COPY --from=build /src/app/web/static/ /app/web/static/
 COPY --from=build /src/app/web/views/ /app/web/views/
 COPY --from=build /src/app/monitor /app/monitor
+COPY --from=build /src/app/relays.txt /app/relays.txt
 
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 
