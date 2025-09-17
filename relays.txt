@@ -1,0 +1,5 @@
+wss://relay.damus.io
+wss://relay.nostr.band
+wss://nostr.land
+wss://nostr.mom
+wss://nos.lol
