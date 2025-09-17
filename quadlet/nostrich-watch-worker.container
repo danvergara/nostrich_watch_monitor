@@ -5,7 +5,7 @@ After=nostrich-watch-job-scheduler.service nostrich-watch-db.service nostrich-wa
 [Container]
 Entrypoint=["/app/monitor","worker"]
 Environment=NOSTRICH_WATCH_DB_HOST=systemd-nostrich-watch-db NOSTRICH_WATCH_DB_PORT=5432 NOSTRICH_WATCH_DB_USER=monitor NOSTRICH_WATCH_DB_NAME=monitor NOSTRICH_WATCH_REDIS_HOST=systemd-nostrich-watch-cache:6379 NOSTRICH_WATCH_MONITOR_RELAY=ws://sytemd-nostr-rs-relay:7777
-Image=ghcr.io/danvergara/nostrich-watch-monitor:0.3.1
+Image=ghcr.io/danvergara/nostrich-watch-monitor:0.4.0
 Secret=nostrich-watch-db-password,type=env,target=NOSTRICH_WATCH_DB_PASSWORD
 Secret=nostrich-watch-monitor-private-key,type=env,target=NOSTRICH_WATCH_MONITOR_PRIVATE_KEY
 Network=monitor.network
