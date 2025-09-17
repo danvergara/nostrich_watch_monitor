@@ -68,12 +68,6 @@ var schedulerCmd = &cobra.Command{
 		// Use the pool of connections to create a database client, based on the Repository pattern.
 		relayRepo := postgres.NewRelayRepository(db)
 
-		// Retrieve a list of relays to perfom health checks on.
-		relays, err := relayRepo.List(ctx, nil)
-		if err != nil {
-			return err
-		}
-
 		// Create a context for graceful shutdown.
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
@@ -91,8 +85,8 @@ var schedulerCmd = &cobra.Command{
 			}
 		}()
 
-		// Create a job for each relay.
-		jobs := make([]gocron.Job, 0, len(relays))
+		// Create a slice of jobs to keep track of them.
+		jobs := make([]gocron.Job, 0, 2)
 
 		healthCheckTimeInternvalInt, err := strconv.Atoi(healthCheckTimeInternval)
 		if err != nil {
@@ -100,42 +94,47 @@ var schedulerCmd = &cobra.Command{
 			return err
 		}
 
-		for _, r := range relays {
-			// Create a job for this specific relay
-			job, err := s.NewJob(
-				gocron.DurationJob(
-					determineGoCronDuration(healthCheckUnitTime, healthCheckTimeInternvalInt),
-				),
-				gocron.NewTask(func(relayURL string) error {
+		healthChecksJob, err := s.NewJob(
+			gocron.DurationJob(
+				determineGoCronDuration(healthCheckUnitTime, healthCheckTimeInternvalInt),
+			),
+			gocron.NewTask(func() error {
+				logger.Info("Running health check job")
+				relays, err := relayRepo.List(ctx, nil)
+				if err != nil {
+					logger.Error(fmt.Sprintf("error fetching relays for health checks: %v", err))
+					return err
+				}
+
+				logger.Info(fmt.Sprintf("Enqueuing health checks for %d relays", len(relays)))
+
+				for _, r := range relays {
 					// Create a asynq task passing the type and the payload of the task.
-					relayTask, err := task.NewRelayHealthCheckTask(relayURL)
+					relayTask, err := task.NewRelayHealthCheckTask(r.URL)
 					if err != nil {
 						logger.Error(err.Error())
-						return err
+						continue
 					}
 
 					// Process the task immediately.
 					info, err := client.Enqueue(relayTask)
 					if err != nil {
 						logger.Error(fmt.Sprintf("error processing a task: %s", err))
-						return err
+						continue
 					}
 
 					logger.Info(fmt.Sprintf("[*] Successfully enqueued the task: %+v", info))
-
-					return nil
-
-				}, r.URL),
-				gocron.WithContext(ctx),
-				gocron.WithName(fmt.Sprintf("health check on relay: %s", r.URL)),
-				gocron.WithTags("health-check", "monitoring", r.URL),
-			)
-			if err != nil {
-				logger.Error(fmt.Sprintf("error scheduling job: %v", err))
-				continue
-			}
-
-			jobs = append(jobs, job)
+				}
+				return nil
+			}),
+			gocron.WithContext(ctx),
+			gocron.WithName("Relays Health Check"),
+			gocron.WithTags("health-check", "monitoring"),
+		)
+		if err != nil {
+			logger.Error(fmt.Sprintf("error scheduling health checks job: %v", err))
+		} else {
+			jobs = append(jobs, healthChecksJob)
 		}
 
 		announcementTimeIntervalInt, err := strconv.Atoi(announcementTimeInterval)
