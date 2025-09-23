@@ -75,7 +75,7 @@ make setup-nostrich-watch-db
 Execute database migrations and seed data:
 
 ```bash
-./run-migrations.sh
+./scripts/run-migrations.sh
 ```
 
 This script will:
