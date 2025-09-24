@@ -3,7 +3,7 @@ Requires=nostrich-watch-cache.service
 After=nostrich-watch-cache.service
 
 [Container]
-Environment=REDIS_ADDR=systemd-nostrich-watch-cache:6379 PORT=8080
+Environment=REDIS_ADDR=systemd-nostrich-watch-cache:6379 PORT=8080 ENABLE_METRICS_EXPORTER=true PROMETHEUS_ADDR=http://systemd-nostrich-watch-prometheus:9090
 Image=docker.io/hibiken/asynqmon:latest
 Network=monitor.network
 PublishPort=8080:8080
