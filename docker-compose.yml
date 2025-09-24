@@ -156,12 +156,27 @@ services:
     networks:
         - monitor
 
+  prometheus:
+    image: prom/prometheus:latest
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    networks:
+        - monitor
+
 volumes:
-  postgres_data:
-    driver: local
-  redis_data:
-    driver: local
+  # postgres_data:
+  #   driver: local
+  # redis_data:
+  #   driver: local
   nostr_data:
+    driver: local
+  prometheus_data:
     driver: local
 
 networks:
