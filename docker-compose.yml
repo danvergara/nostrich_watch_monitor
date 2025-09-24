@@ -109,6 +109,8 @@ services:
       - NOSTRICH_WATCH_MONITOR_PRIVATE_KEY=${NOSTRICH_WATCH_MONITOR_PRIVATE_KEY}
       - NOSTRICH_WATCH_MONITOR_RELAY=ws://nostr-relay:7777
     entrypoint: ["/app/monitor", "worker"]
+    ports:
+      - 2112:2112
     networks:
       - monitor
 
