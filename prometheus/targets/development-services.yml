@@ -1,0 +1,5 @@
+- targets:
+  - 'worker:2112'
+  labels:
+    env: 'development'
+    service: 'nostrich-watch-worker'

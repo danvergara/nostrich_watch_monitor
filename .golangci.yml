@@ -1,5 +1,12 @@
 version: "2"
 linters:
+  enable:
+    - sloglint
+  settings:
+    sloglint:
+      # Enforce using attributes only.
+      # This will raise an error for any key-value pair arguments.
+      attr-only: true
   exclusions:
     rules:
       - path: _test\.go

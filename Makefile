@@ -51,20 +51,28 @@ setup-nostrich-watch-db:
 	systemctl --user start nostrich-watch-db  
 
 .PHONY: setup-config
-## setup-config: copy config file to the right location
+## setup-config: copy config files to the right location
 setup-config:
-	mkdir -p ~/.config/nostrich-watch
+	mkdir -p ~/.config/nostrich-watch/prometheus/targets
 	cp config.toml ~/.config/nostrich-watch/
+	cp prometheus/prometheus.yml ~/.config/nostrich-watch/prometheus/
+	cp prometheus/targets/services.yml ~/.config/nostrich-watch/prometheus/targets/
+	cp prometheus/targets/asynqmon.yml ~/.config/nostrich-watch/prometheus/targets/
 
 .PHONY: start-services
 ## start-services: start all services after migrations
 start-services:
-	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
 
 .PHONY: stop-services
 ## stop-services: stop all services
 stop-services:
-	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
+
+.PHONY: restart-services
+## restart-services: restart all services
+restart-services:
+	systemctl --user restart nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
 
 .PHONY: list-services
 ## list-services: list all services

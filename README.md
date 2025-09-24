@@ -131,9 +131,11 @@ Each Go worker follows this workflow:
 
 ### Infrastructure
 - **Redis 8.x**: Job queue and caching
-- **PostgreSQL 16**: Primary data storage
+- **PostgreSQL 17**: Primary data storage
+- **Prometheus**: System monitoring
 - **Docker**: Containerized deployment
-- **Docker Compose**: Multi-container orchestration
+- **Docker Compose**: Multi-container orchestration for development
+- **Podman / Quadlet**: Systemd-based deployment for production
 
 ## Deployment Benefits
 
@@ -142,6 +144,10 @@ Each Go worker follows this workflow:
 - **Independent scaling**: Scale scheduler and workers based on different requirements
 - **Operational simplicity**: Well-defined component boundaries and responsibilities
 - **Cost efficiency**: Resources allocated based on actual workload demands
+- **Go ecosystem**: Leverages Go's excellent concurrency primitives and standard library
+
+This architecture provides a robust foundation for reliable NIP-66 relay monitoring that can scale from hundreds to thousands of relays while maintaining the precise timing commitments required by the protocol.
+
 - **Go ecosystem**: Leverages Go's excellent concurrency primitives and standard library
 
 This architecture provides a robust foundation for reliable NIP-66 relay monitoring that can scale from hundreds to thousands of relays while maintaining the precise timing commitments required by the protocol.

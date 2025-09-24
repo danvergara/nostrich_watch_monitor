@@ -9,6 +9,7 @@ Image=ghcr.io/danvergara/nostrich-watch-monitor:0.5.0
 Secret=nostrich-watch-db-password,type=env,target=NOSTRICH_WATCH_DB_PASSWORD
 Secret=nostrich-watch-monitor-private-key,type=env,target=NOSTRICH_WATCH_MONITOR_PRIVATE_KEY
 Network=monitor.network
+PublishPort=2112:2112
 
 [Install]
 WantedBy=default.target

@@ -1,0 +1,5 @@
+- targets:
+  - 'systemd-nostrich-watch-asynqmon:8080'
+  labels:
+    env: 'production'
+    service: 'asynqmon'
