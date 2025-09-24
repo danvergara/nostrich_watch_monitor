@@ -62,12 +62,12 @@ setup-config:
 .PHONY: start-services
 ## start-services: start all services after migrations
 start-services:
-	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+	systemctl --user start nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
 
 .PHONY: stop-services
 ## stop-services: stop all services
 stop-services:
-	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon
+	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
 
 .PHONY: list-services
 ## list-services: list all services
