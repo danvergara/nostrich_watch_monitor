@@ -3,12 +3,17 @@ global:
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'worker'
+  - job_name: 'nostrich-watch-worker'
     scrape_interval: 10s
-    static_configs:
-      - targets: ['systemd-nostrich-watch-worker:2112']
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/services.yml'
 
-  # Prometheus itself changes slowly, scrape less frequently
+  - job_name: 'asynqmon'
+    file_sd_configs:
+      - files:
+        - '/etc/prometheus/targets/asynqmon.yml'
+
   - job_name: 'prometheus'
     scrape_interval: 30s
     static_configs:

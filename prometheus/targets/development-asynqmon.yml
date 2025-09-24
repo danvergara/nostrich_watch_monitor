@@ -1,0 +1,5 @@
+- targets:
+  - 'asynqmon:8080'
+  labels:
+    env: 'development'
+    service: 'asynqmon'

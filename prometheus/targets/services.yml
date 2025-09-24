@@ -1,0 +1,5 @@
+- targets:
+  - 'systemd-nostrich-watch-worker:2112'
+  labels:
+    env: 'production'
+    service: 'nostrich-watch-worker'
