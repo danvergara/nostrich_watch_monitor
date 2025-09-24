@@ -69,6 +69,11 @@ start-services:
 stop-services:
 	systemctl --user stop nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
 
+.PHONY: restart-services
+## restart-services: restart all services
+restart-services:
+	systemctl --user restart nostrich-watch-cache nostr-rs-relay nostrich-watch-job-scheduler nostrich-watch-dashboard nostrich-watch-worker nostrich-watch-asynqmon nostrich-watch-prometheus
+
 .PHONY: list-services
 ## list-services: list all services
 list-services:
