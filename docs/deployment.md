@@ -17,6 +17,7 @@ This guide walks you through deploying Nostrich Watch Monitor using Podman Quadl
 ```bash
 git clone https://github.com/danvergara/nostrich_watch_monitor.git
 cd nostrich_watch_monitor
+# Make sure to checkout the latest release
 git checkout v0.3.0
 ```
 
@@ -42,13 +43,13 @@ This will create:
 
 ### 4. Setup Configuration
 
-Copy the nostr-rs-relay configuration file to the expected location:
+Copy the configuration files to their expected locations:
 
 ```bash
 make setup-config
 ```
 
-This copies `config.toml` to `~/.config/nostrich-watch/config.toml`.
+This copies `config.toml` and Prometheus configuration files to `~/.config/nostrich-watch/`.
 
 ### 5. Setup Services
 
@@ -97,6 +98,7 @@ This starts:
 - `dashboard` (Web dashboard)
 - `nostrich-watch-worker` (Background worker)
 - `asynqmon` (Queue monitoring UI)
+- `nostrich-watch-prometheus` (Prometheus monitoring)
 
 ## Service URLs
 
@@ -104,6 +106,8 @@ After deployment, the following services will be available:
 
 - **Dashboard**: http://localhost:8000
 - **Asynq Monitor**: http://localhost:8080
+- **Prometheus**: http://localhost:9090
+- **Worker Metrics**: http://localhost:2112/metrics
 - **Nostr Relay**: ws://localhost:7777
 - **PostgreSQL**: localhost:5432
 - **Redis**: localhost:6379
