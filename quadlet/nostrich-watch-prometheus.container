@@ -7,9 +7,9 @@ Image=docker.io/prom/prometheus:latest
 Exec=--config.file=/etc/prometheus/prometheus.yml
 Network=monitor.network
 PublishPort=9090:9090
-Volume=%h/.config/nostrich-watch/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-Volume=%h/.config/nostrich-watch/prometheus/targets/services.yml:/etc/prometheus/targets/services.yml
-Volume=%h/.config/nostrich-watch/prometheus/targets/asynqmon.yml:/etc/prometheus/targets/asynqmon.yml
+Volume=%h/.config/nostrich-watch/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:z
+Volume=%h/.config/nostrich-watch/prometheus/targets/services.yml:/etc/prometheus/targets/services.yml:z
+Volume=%h/.config/nostrich-watch/prometheus/targets/asynqmon.yml:/etc/prometheus/targets/asynqmon.yml:z
 Volume=prometheus_data.volume:/prometheus
 
 [Service]
