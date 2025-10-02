@@ -34,7 +34,7 @@ func PerformanceCard(relay presentation.RelayDetailViewModel) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-6\">Performance Metrics</h3><!-- RTT Metrics Grid --><!-- Current: 2 metrics active - centered layout --><div class=\"grid grid-cols-2 gap-4 justify-items-center max-w-md mx-auto\"><!-- Alternative grid configurations (uncomment as needed): --><!-- For 3 metrics: <div class=\"grid grid-cols-1 md:grid-cols-3 gap-4 justify-items-center max-w-2xl mx-auto\"> --><!-- For 4 metrics: <div class=\"grid grid-cols-2 md:grid-cols-4 gap-4\"> -->")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-6\">Performance Metrics</h3><!-- RTT Metrics Grid --><!-- Current: 2 metrics active - centered layout --><div class=\"grid grid-cols-2 gap-4 justify-items-center max-w-md mx-auto\"><!-- Alternative grid configurations (uncomment as needed): --><!-- For 3 metrics: <div class=\"grid grid-cols-1 md:grid-cols-3 gap-4 justify-items-center max-w-2xl mx-auto\"> --><!-- For 4 metrics: <div class=\"grid grid-cols-2 md:grid-cols-4 gap-4\"> -->")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -97,7 +97,7 @@ func RTTMetric(label string, current *int, avg *int) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if current != nil {
-			var templ_7745c5c3_Var4 = []any{"text-lg font-semibold mb-1",
+			var templ_7745c5c3_Var4 = []any{"text-base font-semibold mb-1",
 				templ.KV("text-green-400", *current < 100),
 				templ.KV("text-yellow-400", *current >= 100 && *current < 300),
 				templ.KV("text-red-400", *current >= 300)}
@@ -189,7 +189,7 @@ func TechnicalSpecsCard(relay presentation.RelayDetailViewModel) templ.Component
 			templ_7745c5c3_Var8 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-6\">Technical Specifications</h3><!-- Software Info --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4 mb-6\"><div><div class=\"text-sm text-gray-400 mb-1\">Software</div><div class=\"text-white font-medium\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-6\">Technical Specifications</h3><!-- Software Info --><div class=\"grid grid-cols-1 md:grid-cols-2 gap-4 mb-6\"><div><div class=\"text-sm text-gray-400 mb-1\">Software</div><div class=\"text-white font-medium\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -329,7 +329,7 @@ func ContactInfoCard(relay presentation.RelayDetailViewModel) templ.Component {
 			templ_7745c5c3_Var14 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-4\">Contact Information</h3>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-4\">Contact Information</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -400,7 +400,7 @@ func StatisticsCard(relay presentation.RelayDetailViewModel) templ.Component {
 			templ_7745c5c3_Var17 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-4\">Statistics</h3><div class=\"space-y-4\"><!-- MVP: Only showing Last Check - uncomment below for full statistics --><!-- Full statistics (uncomment for post-MVP): --><!-- <div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Total Checks</span>\n\t\t\t\t<span class=\"text-white font-semibold\">{ fmt.Sprintf(\"%d\", relay.TotalChecks) }</span>\n\t\t\t</div>\n\t\t\t<div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Failed Checks</span>\n\t\t\t\t<span class=\"text-red-400 font-semibold\">{ fmt.Sprintf(\"%d\", relay.FailedChecks) }</span>\n\t\t\t</div>\n\t\t\t<div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Success Rate</span>\n\t\t\t\t<span class=\"text-green-400 font-semibold\">\n\t\t\t\t\t{ fmt.Sprintf(\"%.1f%%\", float64(relay.TotalChecks-relay.FailedChecks)/float64(relay.TotalChecks)*100) }\n\t\t\t\t</span>\n\t\t\t</div> --><!-- MVP: Last Check only --><div class=\"flex justify-between\"><span class=\"text-gray-400\">Last Check</span> <span class=\"text-white\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-4\">Statistics</h3><div class=\"space-y-4\"><!-- MVP: Only showing Last Check - uncomment below for full statistics --><!-- Full statistics (uncomment for post-MVP): --><!-- <div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Total Checks</span>\n\t\t\t\t<span class=\"text-white font-semibold\">{ fmt.Sprintf(\"%d\", relay.TotalChecks) }</span>\n\t\t\t</div>\n\t\t\t<div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Failed Checks</span>\n\t\t\t\t<span class=\"text-red-400 font-semibold\">{ fmt.Sprintf(\"%d\", relay.FailedChecks) }</span>\n\t\t\t</div>\n\t\t\t<div class=\"flex justify-between\">\n\t\t\t\t<span class=\"text-gray-400\">Success Rate</span>\n\t\t\t\t<span class=\"text-green-400 font-semibold\">\n\t\t\t\t\t{ fmt.Sprintf(\"%.1f%%\", float64(relay.TotalChecks-relay.FailedChecks)/float64(relay.TotalChecks)*100) }\n\t\t\t\t</span>\n\t\t\t</div> --><!-- MVP: Last Check only --><div class=\"flex justify-between\"><span class=\"text-gray-400\">Last Check</span> <span class=\"text-white\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -442,7 +442,7 @@ func PoliciesCard(relay presentation.RelayDetailViewModel) templ.Component {
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-4\">Policies & Links</h3><div class=\"space-y-3\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-4\">Policies & Links</h3><div class=\"space-y-3\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -532,14 +532,14 @@ func HealthHistoryCard(relay presentation.RelayDetailViewModel) templ.Component 
 			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-xl font-semibold text-white mb-6\">Health History</h3><!-- Placeholder for future chart implementation --><div class=\"flex items-center justify-center h-32 bg-gray-700 rounded-lg\"><div class=\"text-center\"><svg class=\"w-8 h-8 text-gray-500 mx-auto mb-2\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"></path></svg><p class=\"text-gray-500 text-sm\">Performance chart coming soon</p></div></div><!-- Quick stats for now --><div class=\"mt-4 grid grid-cols-1 gap-4 text-center\"><div><div class=\"text-2xl font-bold text-white\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 44, "<div class=\"bg-gray-800 rounded-xl p-6 border border-gray-700\"><h3 class=\"text-lg font-semibold text-white mb-6\">Health History</h3><!-- Placeholder for future chart implementation --><div class=\"flex items-center justify-center h-32 bg-gray-700 rounded-lg\"><div class=\"text-center\"><svg class=\"w-8 h-8 text-gray-500 mx-auto mb-2\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\"><path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z\"></path></svg><p class=\"text-gray-500 text-sm\">Performance chart coming soon</p></div></div><!-- Quick stats for now --><div class=\"mt-4 grid grid-cols-1 gap-4 text-center\"><div><div class=\"text-xl font-bold text-white\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.JoinStringErrs(fmt.Sprintf("%d", relay.TotalChecks))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/views/components/relay_detail_components.templ`, Line: 201, Col: 85}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `web/views/components/relay_detail_components.templ`, Line: 201, Col: 84}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var24))
 		if templ_7745c5c3_Err != nil {
