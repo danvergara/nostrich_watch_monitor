@@ -26,6 +26,18 @@ func (r *relayRepository) List(
 ) ([]domain.Relay, error) {
 	var relays []domain.Relay
 
+	tx, err := r.db.BeginTxx(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
+	}
+	defer func() {
+		_ = tx.Rollback()
+	}()
+
+	if _, err := tx.ExecContext(ctx, "SELECT setseed(EXTRACT(DOY FROM current_date) / 366.0)"); err != nil {
+		return nil, fmt.Errorf("failed to set seed: %w", err)
+	}
+
 	// Build the complete query with subquery inline
 	query := sq.StatementBuilder.PlaceholderFormat(sq.Dollar).Select(
 		"r.url",
@@ -72,15 +84,19 @@ func (r *relayRepository) List(
 		}
 	}
 
-	query = query.OrderBy("r.url")
+	query = query.OrderBy("RANDOM()")
 
 	sql, args, err := query.ToSql()
 	if err != nil {
 		return nil, fmt.Errorf("failed to build query: %w", err)
 	}
 
-	if err := r.db.SelectContext(ctx, &relays, sql, args...); err != nil {
+	if err := tx.SelectContext(ctx, &relays, sql, args...); err != nil {
 		return nil, fmt.Errorf("failed to get relays: %w", err)
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("failed to commit transaction: %w", err)
 	}
 
 	// Post-process to set HealthCheck to nil when there's no actual health check data

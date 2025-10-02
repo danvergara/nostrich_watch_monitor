@@ -29,7 +29,7 @@ func Navigation() templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"border-b border-gray-800 bg-gray-900/95 backdrop-blur\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between items-center py-6\"><div class=\"flex items-center space-x-4\"><a href=\"/\" class=\"text-2xl font-bold text-white hover:text-purple-300 transition-colors\">NostrWatch</a> <span class=\"text-sm text-purple-400 font-medium\">Relay Directory</span></div></div></div></header>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<header class=\"border-b border-gray-800 bg-gray-900/95 backdrop-blur\"><div class=\"max-w-7xl mx-auto px-4 sm:px-6 lg:px-8\"><div class=\"flex justify-between items-center py-6\"><a href=\"/\" class=\"inline-flex items-center gap-3\"><img src=\"/static/favicon.png\" alt=\"Nostrich Watch logo\" class=\"h-12 w-12\"><div class=\"flex flex-col items-start\"><span class=\"text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 to-pink-600\">Nostrich Watch</span> <span class=\"text-xs text-gray-500 dark:text-gray-400 font-normal\">Nostr Relay Explorer</span></div></a></div></div></header>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

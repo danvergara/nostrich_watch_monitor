@@ -71,7 +71,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><!-- Name and URL --><div class=\"min-w-0 flex-1\"><div class=\"text-base md:text-lg lg:text-xl font-medium text-gray-900 dark:text-white truncate\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</div><!-- Name and URL --><div class=\"min-w-0 flex-1\"><div class=\"text-sm md:text-base lg:text-lg font-medium text-gray-900 dark:text-white truncate\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -84,7 +84,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-sm md:text-base text-gray-500 dark:text-gray-400 truncate\"><button hx-get=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</div><div class=\"text-xs md:text-sm text-gray-500 dark:text-gray-400 truncate\"><button hx-get=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if relay.RTTOpen != nil {
-			var templ_7745c5c3_Var8 = []any{"text-base md:text-lg font-medium",
+			var templ_7745c5c3_Var8 = []any{"text-sm md:text-base font-medium",
 				templ.KV("text-green-600 dark:text-green-400", *relay.RTTOpen < 100),
 				templ.KV("text-yellow-600 dark:text-yellow-400", *relay.RTTOpen >= 100 && *relay.RTTOpen < 300),
 				templ.KV("text-red-600 dark:text-red-400", *relay.RTTOpen >= 300)}
@@ -169,7 +169,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 				return templ_7745c5c3_Err
 			}
 			if relay.RTTNIP11 != nil {
-				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"text-base md:text-lg text-green-600 dark:text-green-400 font-medium\">")
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "<span class=\"text-sm md:text-base text-green-600 dark:text-green-400 font-medium\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
@@ -201,7 +201,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var12 = []any{"inline-flex px-2 py-1 text-sm md:text-base font-medium rounded-full",
+		var templ_7745c5c3_Var12 = []any{"inline-flex px-2 py-1 text-xs md:text-sm font-medium rounded-full",
 			templ.KV("bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", relay.Classification == "Public"),
 			templ.KV("bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", relay.Classification == "Paid"),
 			templ.KV("bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200", relay.Classification == "WoT"),
@@ -236,7 +236,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><!-- Last Check Column --><td class=\"px-2 py-4\"><div class=\"text-base md:text-lg text-gray-900 dark:text-white\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</span></td><!-- Last Check Column --><td class=\"px-2 py-4\"><div class=\"text-sm md:text-base text-gray-900 dark:text-white\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -253,7 +253,7 @@ func RelayTableRow(relay presentation.RelayTableViewModel) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var16 = []any{"text-sm md:text-base font-medium",
+		var templ_7745c5c3_Var16 = []any{"text-xs md:text-sm font-medium",
 			templ.KV("text-green-600 dark:text-green-400", relay.IsOnline),
 			templ.KV("text-red-600 dark:text-red-400", !relay.IsOnline)}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var16...)

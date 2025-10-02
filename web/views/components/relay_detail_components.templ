@@ -7,7 +7,7 @@ import (
 
 templ PerformanceCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-6">Performance Metrics</h3>
+		<h3 class="text-lg font-semibold text-white mb-6">Performance Metrics</h3>
 		<!-- RTT Metrics Grid -->
 		<!-- Current: 2 metrics active - centered layout -->
 		<div class="grid grid-cols-2 gap-4 justify-items-center max-w-md mx-auto">
@@ -27,7 +27,7 @@ templ RTTMetric(label string, current *int, avg *int) {
 		<div class="text-sm text-gray-400 mb-1">{ label }</div>
 		if current != nil {
 			<div
-				class={ "text-lg font-semibold mb-1",
+				class={ "text-base font-semibold mb-1",
                 templ.KV("text-green-400", *current < 100),
                 templ.KV("text-yellow-400", *current >= 100 && *current < 300),
                 templ.KV("text-red-400", *current >= 300) }
@@ -43,7 +43,7 @@ templ RTTMetric(label string, current *int, avg *int) {
 
 templ TechnicalSpecsCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-6">Technical Specifications</h3>
+		<h3 class="text-lg font-semibold text-white mb-6">Technical Specifications</h3>
 		<!-- Software Info -->
 		<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
 			<div>
@@ -94,7 +94,7 @@ templ TechnicalSpecsCard(relay presentation.RelayDetailViewModel) {
 
 templ ContactInfoCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-4">Contact Information</h3>
+		<h3 class="text-lg font-semibold text-white mb-4">Contact Information</h3>
 		if relay.Contact != "" {
 			<div class="mb-4">
 				<div class="text-sm text-gray-400 mb-1">Contact</div>
@@ -112,7 +112,7 @@ templ ContactInfoCard(relay presentation.RelayDetailViewModel) {
 
 templ StatisticsCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-4">Statistics</h3>
+		<h3 class="text-lg font-semibold text-white mb-4">Statistics</h3>
 		<div class="space-y-4">
 			<!-- MVP: Only showing Last Check - uncomment below for full statistics -->
 			<!-- Full statistics (uncomment for post-MVP): -->
@@ -141,7 +141,7 @@ templ StatisticsCard(relay presentation.RelayDetailViewModel) {
 
 templ PoliciesCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-4">Policies & Links</h3>
+		<h3 class="text-lg font-semibold text-white mb-4">Policies & Links</h3>
 		<div class="space-y-3">
 			if relay.PrivacyPolicy != "" {
 				<a
@@ -185,7 +185,7 @@ templ PoliciesCard(relay presentation.RelayDetailViewModel) {
 
 templ HealthHistoryCard(relay presentation.RelayDetailViewModel) {
 	<div class="bg-gray-800 rounded-xl p-6 border border-gray-700">
-		<h3 class="text-xl font-semibold text-white mb-6">Health History</h3>
+		<h3 class="text-lg font-semibold text-white mb-6">Health History</h3>
 		<!-- Placeholder for future chart implementation -->
 		<div class="flex items-center justify-center h-32 bg-gray-700 rounded-lg">
 			<div class="text-center">
@@ -198,7 +198,7 @@ templ HealthHistoryCard(relay presentation.RelayDetailViewModel) {
 		<!-- Quick stats for now -->
 		<div class="mt-4 grid grid-cols-1 gap-4 text-center">
 			<div>
-				<div class="text-2xl font-bold text-white">{ fmt.Sprintf("%d", relay.TotalChecks) }</div>
+				<div class="text-xl font-bold text-white">{ fmt.Sprintf("%d", relay.TotalChecks) }</div>
 				<div class="text-sm text-gray-400">Total Checks</div>
 			</div>
 		</div>
