@@ -30,7 +30,9 @@ func (r *relayRepository) List(
 	if err != nil {
 		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
-	defer tx.Rollback()
+	defer func() {
+		_ = tx.Rollback()
+	}()
 
 	if _, err := tx.ExecContext(ctx, "SELECT setseed(EXTRACT(DOY FROM current_date) / 366.0)"); err != nil {
 		return nil, fmt.Errorf("failed to set seed: %w", err)
