@@ -4,7 +4,7 @@ After=nostrich-watch-db.service
 
 [Container]
 Entrypoint=["/app/monitor","server"]
-Environment=NOSTRICH_WATCH_DB_HOST=systemd-nostrich-watch-db NOSTRICH_WATCH_DB_PORT=5432 NOSTRICH_WATCH_DB_USER=monitor NOSTRICH_WATCH_DB_NAME=monitor NOSTRICH_WATCH_REDIS_HOST=nostrich-watch-cache:6379
+Environment=NOSTRICH_WATCH_DB_HOST=systemd-nostrich-watch-db NOSTRICH_WATCH_DB_PORT=5432 NOSTRICH_WATCH_DB_USER=monitor NOSTRICH_WATCH_DB_NAME=monitor NOSTRICH_WATCH_REDIS_HOST=nostrich-watch-cache:6379 NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME=minute NOSTRICH_WATCH_MONITOR_HEALTHCHECK_TIME_INTERVAL=30
 Image=ghcr.io/danvergara/nostrich-watch-monitor:0.8.0
 Network=monitor.network
 Secret=nostrich-watch-db-password,type=env,target=NOSTRICH_WATCH_DB_PASSWORD
