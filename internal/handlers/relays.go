@@ -3,6 +3,7 @@ package handlers
 import (
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/danvergara/nostrich_watch_monitor/pkg/domain"
 	"github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
@@ -12,11 +13,15 @@ import (
 )
 
 type RelaysHandler struct {
-	service services.RelayService
+	service             services.RelayService
+	healthCheckInterval time.Duration
 }
 
-func NewRelaysHandler(service services.RelayService) *RelaysHandler {
-	return &RelaysHandler{service}
+func NewRelaysHandler(
+	service services.RelayService,
+	healthCheckInterval time.Duration,
+) *RelaysHandler {
+	return &RelaysHandler{service, healthCheckInterval}
 }
 
 func (rh *RelaysHandler) HandleRelayIndex(w http.ResponseWriter, r *http.Request) {
@@ -30,16 +35,18 @@ func (rh *RelaysHandler) HandleRelayIndex(w http.ResponseWriter, r *http.Request
 	relays, err := rh.service.GetRelays(r.Context(), filters)
 	if err != nil {
 		// Show dashboard with empty table - template will show error state via EmptyState component
-		if err := views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w); err != nil {
+		if err := views.Dashboard(ToRelayTableViewModels([]domain.Relay{}, rh.healthCheckInterval)).Render(r.Context(), w); err != nil {
 			// If even empty dashboard fails, try once more (template rendering rarely fails twice)
-			_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
+			_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{}, rh.healthCheckInterval)).
+				Render(r.Context(), w)
 		}
 		return
 	}
 
-	if err := views.Dashboard(ToRelayTableViewModels(relays)).Render(r.Context(), w); err != nil {
+	if err := views.Dashboard(ToRelayTableViewModels(relays, rh.healthCheckInterval)).Render(r.Context(), w); err != nil {
 		// Same approach - show empty dashboard instead of breaking the page
-		_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{})).Render(r.Context(), w)
+		_ = views.Dashboard(ToRelayTableViewModels([]domain.Relay{}, rh.healthCheckInterval)).
+			Render(r.Context(), w)
 	}
 }
 
@@ -65,7 +72,7 @@ func (rh *RelaysHandler) HandleRelayDetail(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	if err := views.RelayDetail(ToRelayDetailViewModel(relay)).Render(r.Context(), w); err != nil {
+	if err := views.RelayDetail(ToRelayDetailViewModel(relay, rh.healthCheckInterval)).Render(r.Context(), w); err != nil {
 		// Same approach - show error state instead of breaking
 		errorRelay := createErrorRelayViewModel(relayURL, "Error loading relay details")
 		_ = views.RelayDetail(errorRelay).Render(r.Context(), w)
@@ -109,7 +116,7 @@ func (rh *RelaysHandler) HandleRelayRows(w http.ResponseWriter, r *http.Request)
 
 	// Return only the table rows, not the full page
 	// Use graceful error handling instead of http.Error
-	if err := components.RelayTableRows(ToRelayTableViewModels(relays), offset+limit).Render(r.Context(), w); err != nil {
+	if err := components.RelayTableRows(ToRelayTableViewModels(relays, rh.healthCheckInterval), offset+limit).Render(r.Context(), w); err != nil {
 		// Return error row that preserves table structure
 		if err := components.ErrorRow("Failed to render relay data. Please try again.").Render(r.Context(), w); err != nil {
 			// Final fallback

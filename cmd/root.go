@@ -10,12 +10,14 @@ import (
 )
 
 var (
-	dbHost    string
-	dbPort    string
-	dbUser    string
-	dbPass    string
-	dbName    string
-	redisHost string
+	dbHost                   string
+	dbPort                   string
+	dbUser                   string
+	dbPass                   string
+	dbName                   string
+	redisHost                string
+	healthCheckUnitTime      string
+	healthCheckTimeInternval string
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -42,4 +44,6 @@ func init() {
 	dbUser = os.Getenv("NOSTRICH_WATCH_DB_USER")
 	dbPass = os.Getenv("NOSTRICH_WATCH_DB_PASSWORD")
 	dbName = os.Getenv("NOSTRICH_WATCH_DB_NAME")
+	healthCheckUnitTime = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME")
+	healthCheckTimeInternval = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_TIME_INTERVAL")
 }
