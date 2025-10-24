@@ -10,6 +10,16 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 )
 
+// getRelayName is a helper function to assign a name to the detail relay model.
+func getRelayName(relay domain.Relay) string {
+	if relay.Name != nil && *relay.Name != "" {
+		return *relay.Name
+	}
+
+	// Default to URL if name is empty
+	return relay.URL
+}
+
 // ToRelayDetailViewModel converts a domain.Relay to presentation.RelayDetailViewModel
 func ToRelayDetailViewModel(
 	relay domain.Relay,
@@ -17,14 +27,8 @@ func ToRelayDetailViewModel(
 ) presentation.RelayDetailViewModel {
 	vm := presentation.RelayDetailViewModel{
 		// Basic Info
-		URL: relay.URL,
-		Name: func() string {
-			if relay.Name != nil && *relay.Name != "" {
-				return *relay.Name
-			}
-			// Default to URL if name is empty
-			return relay.URL
-		}(),
+		URL:         relay.URL,
+		Name:        getRelayName(relay),
 		Description: safeString(relay.Description),
 		Contact:     safeString(relay.Contact),
 		PubKey:      safeString(relay.PubKey),
@@ -166,14 +170,8 @@ func ToRelayTableViewModel(
 	healthCheckInterval time.Duration,
 ) presentation.RelayTableViewModel {
 	vm := presentation.RelayTableViewModel{
-		URL: relay.URL,
-		Name: func() string {
-			if relay.Name != nil && *relay.Name != "" {
-				return *relay.Name
-			}
-			// Default to URL if name is empty
-			return relay.URL
-		}(),
+		URL:            relay.URL,
+		Name:           getRelayName(relay),
 		Classification: deriveClassification(relay.Tags),
 	}
 
