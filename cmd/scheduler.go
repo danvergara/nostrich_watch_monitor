@@ -25,8 +25,6 @@ import (
 )
 
 var (
-	healthCheckUnitTime      string
-	healthCheckTimeInternval string
 	announcementUnitTime     string
 	announcementTimeInterval string
 )
@@ -216,8 +214,6 @@ var schedulerCmd = &cobra.Command{
 }
 
 func init() {
-	healthCheckUnitTime = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME")
-	healthCheckTimeInternval = os.Getenv("NOSTRICH_WATCH_MONITOR_HEALTHCHECK_TIME_INTERVAL")
 	announcementUnitTime = os.Getenv("NOSTRICH_WATCH_MONITOR_ANNOUNCEMENT_UNIT_TIME")
 	announcementTimeInterval = os.Getenv("NOSTRICH_WATCH_MONITOR_ANNOUNCEMENT_TIME_INTERVAL")
 

@@ -129,6 +129,8 @@ services:
       - NOSTRICH_WATCH_DB_PASSWORD=${NOSTRICH_WATCH_DB_PASSWORD}
       - NOSTRICH_WATCH_DB_NAME=monitor
       - NOSTRICH_WATCH_REDIS_HOST=redis:6379
+      - NOSTRICH_WATCH_MONITOR_HEALTHCHECK_UNIT_TIME=second
+      - NOSTRICH_WATCH_MONITOR_HEALTHCHECK_TIME_INTERVAL=60
     entrypoint: ["/app/monitor", "server"]
     networks:
       - monitor

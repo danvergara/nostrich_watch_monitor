@@ -36,3 +36,11 @@ type Relay struct {
 
 	*HealthCheck `db:"health_checks"`
 }
+
+func (r *Relay) IsOnline(healthCheckInterval time.Duration) bool {
+	return r.HealthCheck != nil &&
+		r.WebsocketSuccess != nil &&
+		*r.WebsocketSuccess &&
+		r.HealthCheck.CreatedAt != nil &&
+		time.Since(*r.HealthCheck.CreatedAt) < healthCheckInterval
+}

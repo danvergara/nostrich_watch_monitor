@@ -9,6 +9,7 @@ import (
 	"io/fs"
 	"log/slog"
 	"os"
+	"strconv"
 
 	"github.com/spf13/cobra"
 
@@ -63,9 +64,17 @@ var serverCmd = &cobra.Command{
 			return err
 		}
 
+		healthCheckTimeInternvalInt, err := strconv.Atoi(healthCheckTimeInternval)
+		if err != nil {
+			logger.Error(err.Error())
+			return err
+		}
 		relayRepository := postgres.NewRelayRepository(db)
 		relayService := services.NewRelayService(relayRepository, logger)
-		relayHandler := handlers.NewRelaysHandler(relayService)
+		relayHandler := handlers.NewRelaysHandler(
+			relayService,
+			determineGoCronDuration(healthCheckUnitTime, healthCheckTimeInternvalInt),
+		)
 
 		logger.Info(fmt.Sprintf("Server listening on port %s", port))
 

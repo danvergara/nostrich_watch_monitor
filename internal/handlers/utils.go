@@ -10,18 +10,25 @@ import (
 	"github.com/danvergara/nostrich_watch_monitor/pkg/presentation"
 )
 
+// getRelayName is a helper function to assign a name to the detail relay model.
+func getRelayName(relay domain.Relay) string {
+	if relay.Name != nil && *relay.Name != "" {
+		return *relay.Name
+	}
+
+	// Default to URL if name is empty
+	return relay.URL
+}
+
 // ToRelayDetailViewModel converts a domain.Relay to presentation.RelayDetailViewModel
-func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewModel {
+func ToRelayDetailViewModel(
+	relay domain.Relay,
+	healthCheckInterval time.Duration,
+) presentation.RelayDetailViewModel {
 	vm := presentation.RelayDetailViewModel{
 		// Basic Info
-		URL: relay.URL,
-		Name: func() string {
-			if relay.Name != nil && *relay.Name != "" {
-				return *relay.Name
-			}
-			// Default to URL if name is empty
-			return relay.URL
-		}(),
+		URL:         relay.URL,
+		Name:        getRelayName(relay),
 		Description: safeString(relay.Description),
 		Contact:     safeString(relay.Contact),
 		PubKey:      safeString(relay.PubKey),
@@ -45,12 +52,13 @@ func ToRelayDetailViewModel(relay domain.Relay) presentation.RelayDetailViewMode
 		Classification: deriveClassification(relay.Tags),
 	}
 
+	if relay.HealthCheck != nil && relay.HealthCheck.CreatedAt != nil {
+		vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
+	}
+
 	// Current Status (from embedded health check)
-	if relay.HealthCheck != nil {
-		vm.IsOnline = safeBool(relay.WebsocketSuccess)
-		if relay.HealthCheck.CreatedAt != nil {
-			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
-		}
+	if relay.IsOnline(healthCheckInterval) {
+		vm.IsOnline = true
 		vm.CurrentRTTOpen = relay.RTTOpen
 		vm.CurrentRTTRead = relay.RTTRead
 		vm.CurrentRTTWrite = relay.RTTWrite
@@ -143,41 +151,41 @@ func deriveClassification(tags pq.StringArray) string {
 }
 
 // ToRelayTableViewModels converts a slice of domain.Relay to a slice of presentation.RelayTableViewModel
-func ToRelayTableViewModels(relays []domain.Relay) []presentation.RelayTableViewModel {
+func ToRelayTableViewModels(
+	relays []domain.Relay,
+	healthCheckInterval time.Duration,
+) []presentation.RelayTableViewModel {
 	viewModels := make([]presentation.RelayTableViewModel, len(relays))
 
 	for i, relay := range relays {
-		viewModels[i] = ToRelayTableViewModel(relay)
+		viewModels[i] = ToRelayTableViewModel(relay, healthCheckInterval)
 	}
 
 	return viewModels
 }
 
 // ToRelayTableViewModel converts a single domain.Relay to presentation.RelayTableViewModel
-func ToRelayTableViewModel(relay domain.Relay) presentation.RelayTableViewModel {
+func ToRelayTableViewModel(
+	relay domain.Relay,
+	healthCheckInterval time.Duration,
+) presentation.RelayTableViewModel {
 	vm := presentation.RelayTableViewModel{
-		URL: relay.URL,
-		Name: func() string {
-			if relay.Name != nil && *relay.Name != "" {
-				return *relay.Name
-			}
-			// Default to URL if name is empty
-			return relay.URL
-		}(),
+		URL:            relay.URL,
+		Name:           getRelayName(relay),
 		Classification: deriveClassification(relay.Tags),
 	}
 
+	if relay.HealthCheck != nil && relay.HealthCheck.CreatedAt != nil {
+		vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
+	}
+
 	// Current Status (from embedded health check)
-	if relay.HealthCheck != nil {
-		vm.IsOnline = safeBool(relay.WebsocketSuccess)
+	if relay.IsOnline(healthCheckInterval) {
+		vm.IsOnline = true
 		vm.WebsocketSuccess = safeBool(relay.WebsocketSuccess)
 		vm.NIP11Success = relay.Nip11Success
 		vm.RTTOpen = relay.RTTOpen
 		vm.RTTNIP11 = relay.RTTNIP11
-
-		if relay.HealthCheck.CreatedAt != nil {
-			vm.LastCheckTime = FormatRelativeTime(*relay.HealthCheck.CreatedAt)
-		}
 	}
 
 	return vm
