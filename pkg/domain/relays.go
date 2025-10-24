@@ -42,5 +42,5 @@ func (r *Relay) IsOnline(healthCheckInterval time.Duration) bool {
 		r.WebsocketSuccess != nil &&
 		*r.WebsocketSuccess &&
 		r.HealthCheck.CreatedAt != nil &&
-		time.Since(*r.HealthCheck.CreatedAt) < healthCheckInterval
+		time.Since(*r.HealthCheck.CreatedAt) < 2*healthCheckInterval
 }
